@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set Oracle environment
-if [ -d /opt/oracle/instantclient_19_8 ]; then
-    export ORACLE_HOME=/opt/oracle/instantclient_19_8
+if [ -d /opt/oracle/instantclient_23_7 ]; then
+    export ORACLE_HOME=/opt/oracle/instantclient_23_7
     export LD_LIBRARY_PATH=$ORACLE_HOME
 elif [ -d /usr/lib/oracle/19.6/client64/lib ]; then
     export ORACLE_HOME=/usr/lib/oracle/19.6/client64
