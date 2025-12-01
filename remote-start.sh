@@ -27,12 +27,20 @@ ENV_SERVER_PATH="./.env"
 sed -i "/^ORACLE_HOST=/c\ORACLE_HOST=dbhost.students.cs.ubc.ca" $ENV_SERVER_PATH
 sed -i "/^ORACLE_PORT=/c\ORACLE_PORT=1522" $ENV_SERVER_PATH
 
-# Define a range
-START=50000
-END=60000
+# Define starting port
+START=49152
+TEAM_NUMBER= # PUT YOUR TEAM NUMBER HERE!!!
+MAX_PORT=65535
 
-# Loop through the range and check if the port is in use
-for PORT in $(seq $START $END); do
+# Check if TEAM_NUMBER is set
+if [ -z "$TEAM_NUMBER" ]; then
+    echo "TEAM_NUMBER needs to be set in remote-start.sh script"
+    exit 1
+fi
+
+# Loop through ports, incrementing by 200 until an available port is found
+PORT=$((START + TEAM_NUMBER))
+while [ $PORT -le $MAX_PORT ]; do
     # Check if the port is in use
     if ! ss -tuln | grep :$PORT > /dev/null; then
         # Bind to the port using a temporary process
@@ -50,5 +58,14 @@ for PORT in $(seq $START $END); do
         exec node server.js
         break
     fi
+    
+    # Increment port by 200 and try again
+    PORT=$((PORT + 200))
 done
+
+# If no available port was found
+if [ $PORT -gt $MAX_PORT ]; then
+    echo "No available port found between $START and $MAX_PORT"
+    exit 1
+fi
 
