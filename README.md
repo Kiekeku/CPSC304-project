@@ -1,10 +1,12 @@
 # Node Project Setup
 
+Please refer to the [sample project setup instructions here](https://www.students.cs.ubc.ca/~cs-304/resources/javascript-oracle-resources/node-setup.html#remote-deploy-item) for more in-depth instructions.
+
 ## Prerequisites
 
 - Access to UBC CS undergrad server
 
-## Setup Instructions
+## Setup Instructions (Remote)
 
 ### 1. Create Environment File
 
