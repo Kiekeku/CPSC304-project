@@ -379,3 +379,27 @@ INSERT INTO Translated_Word_8 VALUES (2, 102, 'SORRY', 85);
 INSERT INTO Translated_Word_8 VALUES (2, 103, 'HELP', 79);
 INSERT INTO Translated_Word_8 VALUES (3, 104, 'GOOD', 91);
 INSERT INTO Translated_Word_8 VALUES (3, 101, 'HELLO', 86); 
+
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
+    VALUES (1, DATE '2025-09-01', 'jett@example.com', 'Jett Chen');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
+    VALUES (2, DATE '2025-09-15', 'bob@example.com', 'Bob Bill');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
+    VALUES (3, DATE '2025-10-01', 'angel@example.com', 'Angel Super');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
+    VALUES (4, DATE '2025-10-20', 'justin@example.com', 'Justin Awesome');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
+    VALUES (5, DATE '2025-11-05', 'hao@example.com', 'Hao Cool');
+
+INSERT INTO Calibrated_Definition VALUES (1, 1, 'open_palm', 'HELLO Gesture', 'Flat open hand, fingers together, palm facing out');
+INSERT INTO Calibrated_Definition VALUES (2, 1, 'closed_fist', 'THANK Gesture', 'Closed fist moving forward from chin');
+INSERT INTO Calibrated_Definition VALUES (3, 2, 'index_point', 'HELP Gesture', 'Thumb up resting on open palm, both hands rise');
+INSERT INTO Calibrated_Definition VALUES (4, 3, 'thumb_up', 'YES Gesture', 'Closed fist bobbing at wrist');
+INSERT INTO Calibrated_Definition VALUES (5, 4, 'victory_sign', 'NO Gesture', 'Index and middle finger, wave side to side');
+
+UPDATE Calibrated_User SET def_id = 1 WHERE user_id = 1;
+UPDATE Calibrated_User SET def_id = 3 WHERE user_id = 2;
+UPDATE Calibrated_User SET def_id = 4 WHERE user_id = 3;
+UPDATE Calibrated_User SET def_id = 5 WHERE user_id = 4;
+UPDATE Calibrated_User SET def_id = 2 WHERE user_id = 5;
+
