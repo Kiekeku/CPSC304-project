@@ -316,7 +316,6 @@ INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_index_point',  '1280x7
 INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_thumb_up',     '1280x720');
 INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_victory_sign', '1920x1080');
 
--- English word lookup (referenced by Translated_Word_5 and Translated_Word_8)
 INSERT INTO Translated_Word_7 VALUES ('HELLO',  5);
 INSERT INTO Translated_Word_7 VALUES ('THANK',  5);
 INSERT INTO Translated_Word_7 VALUES ('HELP',   4);
@@ -326,14 +325,12 @@ INSERT INTO Translated_Word_7 VALUES ('PLEASE', 6);
 INSERT INTO Translated_Word_7 VALUES ('SORRY',  5);
 INSERT INTO Translated_Word_7 VALUES ('GOOD',   4);
 
--- Hand position patterns (referenced by Predicted_Gesture_Handmark1)
 INSERT INTO Predicted_Gesture_Handmark2 VALUES (1, 12, '0.45,0.50,0.50', '0.30,0.35,0.40');
 INSERT INTO Predicted_Gesture_Handmark2 VALUES (2,  8, '0.20,0.25,0.30', '0.60,0.65,0.70');
 INSERT INTO Predicted_Gesture_Handmark2 VALUES (3, 15, '0.70,0.75,0.80', '0.20,0.25,0.30');
 INSERT INTO Predicted_Gesture_Handmark2 VALUES (4, 10, '0.35,0.40,0.45', '0.50,0.55,0.60');
 INSERT INTO Predicted_Gesture_Handmark2 VALUES (5,  9, '0.55,0.60,0.65', '0.10,0.15,0.20');
 
--- ML models (handmark_id FK added via UPDATE after Handmark1 rows exist)
 INSERT INTO Trained_Machine_Learning_Model (model_id, accuracy, hyperparameter, model_type)
     VALUES (1, 92, 100, 'RandomForest');
 INSERT INTO Trained_Machine_Learning_Model (model_id, accuracy, hyperparameter, model_type)
