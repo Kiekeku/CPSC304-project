@@ -403,3 +403,124 @@ UPDATE Calibrated_User SET def_id = 4 WHERE user_id = 3;
 UPDATE Calibrated_User SET def_id = 5 WHERE user_id = 4;
 UPDATE Calibrated_User SET def_id = 2 WHERE user_id = 5;
 
+INSERT INTO Documented_Saved_Transcript_7 (recording_id) VALUES (1);
+INSERT INTO Documented_Saved_Transcript_7 (recording_id) VALUES (2);
+
+INSERT INTO Documented_Saved_Transcript_1 VALUES (201, 1);
+INSERT INTO Documented_Saved_Transcript_1 VALUES (202, 2);
+
+UPDATE Documented_Saved_Transcript_7 SET transcript_id = 201 WHERE recording_id = 1;
+UPDATE Documented_Saved_Transcript_7 SET transcript_id = 202 WHERE recording_id = 2;
+
+INSERT INTO Documented_Saved_Transcript_2 VALUES (201, 1);
+INSERT INTO Documented_Saved_Transcript_2 VALUES (202, 1);
+
+INSERT INTO Documented_Saved_Transcript_3 VALUES (201, 'HELLO THANK HELP YES NO PLEASE');
+INSERT INTO Documented_Saved_Transcript_3 VALUES (202, 'YES NO SORRY GOOD HELLO');
+
+INSERT INTO Documented_Saved_Transcript_4 VALUES (201, 6);
+INSERT INTO Documented_Saved_Transcript_4 VALUES (202, 5);
+
+INSERT INTO Documented_Saved_Transcript_5 VALUES (201, DATE '2025-11-01');
+INSERT INTO Documented_Saved_Transcript_5 VALUES (202, DATE '2025-11-15');
+
+INSERT INTO Documented_Saved_Transcript_6 VALUES (201, 'English');
+INSERT INTO Documented_Saved_Transcript_6 VALUES (202, 'English');
+
+INSERT INTO Documented_Saved_Transcript_8 VALUES (1, 1);
+INSERT INTO Documented_Saved_Transcript_8 VALUES (2, 1);
+
+INSERT INTO Documented_Saved_Transcript_9 VALUES (1, 'HELLO THANK HELP YES NO PLEASE');
+INSERT INTO Documented_Saved_Transcript_9 VALUES (2, 'YES NO SORRY GOOD HELLO');
+
+INSERT INTO Documented_Saved_Transcript_10 VALUES (1, 6);
+INSERT INTO Documented_Saved_Transcript_10 VALUES (2, 5);
+
+INSERT INTO Documented_Saved_Transcript_11 VALUES (1, DATE '2025-11-01');
+INSERT INTO Documented_Saved_Transcript_11 VALUES (2, DATE '2025-11-15');
+
+INSERT INTO Documented_Saved_Transcript_12 VALUES (1, 'English');
+INSERT INTO Documented_Saved_Transcript_12 VALUES (2, 'English');
+
+INSERT INTO Created_Documented_Recording VALUES (1, 201, 1, 30, DATE '2025-11-01', 'jett_session_1');
+INSERT INTO Created_Documented_Recording VALUES (2, 202, 1, 30, DATE '2025-11-15', 'jett_session_2');
+
+INSERT INTO Live  VALUES (1, 'webcam://device_0');
+INSERT INTO Video VALUES (2, 120);
+
+INSERT INTO Contained_Analyzed_Frame1 VALUES ('frame_data_open_palm',   1, 1, TIMESTAMP '2025-11-01 10:00:00.000');
+INSERT INTO Contained_Analyzed_Frame1 VALUES ('frame_data_closed_fist', 1, 2, TIMESTAMP '2025-11-01 10:00:00.033');
+INSERT INTO Contained_Analyzed_Frame1 VALUES ('frame_data_index_point', 2, 1, TIMESTAMP '2025-11-15 14:00:00.000');
+
+INSERT INTO Translated_Word_1 VALUES (1,  201);
+INSERT INTO Translated_Word_1 VALUES (2,  201);
+INSERT INTO Translated_Word_1 VALUES (3,  201);
+INSERT INTO Translated_Word_1 VALUES (4,  201);
+INSERT INTO Translated_Word_1 VALUES (5,  201);
+INSERT INTO Translated_Word_1 VALUES (6,  201);
+INSERT INTO Translated_Word_1 VALUES (7,  202);
+INSERT INTO Translated_Word_1 VALUES (8,  202);
+INSERT INTO Translated_Word_1 VALUES (9,  202);
+INSERT INTO Translated_Word_1 VALUES (10, 202);
+INSERT INTO Translated_Word_1 VALUES (11, 202);
+
+INSERT INTO Translated_Word_2 VALUES (1,  101); -- def 1 open_palm = HELLO
+INSERT INTO Translated_Word_2 VALUES (2,  102); -- def 2 closed_fist = THANK
+INSERT INTO Translated_Word_2 VALUES (3,  103); -- def 3 index_point = HELP
+INSERT INTO Translated_Word_2 VALUES (4,  104); -- def 4 thumb_up = YES
+INSERT INTO Translated_Word_2 VALUES (5,  105); -- def 5 victory = NO
+INSERT INTO Translated_Word_2 VALUES (6,  101); -- def 1 again = PLEASE
+INSERT INTO Translated_Word_2 VALUES (7,  104); -- def 4 = YES
+INSERT INTO Translated_Word_2 VALUES (8,  105); -- def 5 = NO
+INSERT INTO Translated_Word_2 VALUES (9,  102); -- def 2 = SORRY
+INSERT INTO Translated_Word_2 VALUES (10, 101); -- def 1 = GOOD
+INSERT INTO Translated_Word_2 VALUES (11, 101); -- def 1 = HELLO
+
+INSERT INTO Translated_Word_3 VALUES (1,  5);
+INSERT INTO Translated_Word_3 VALUES (2,  5);
+INSERT INTO Translated_Word_3 VALUES (3,  4);
+INSERT INTO Translated_Word_3 VALUES (4,  3);
+INSERT INTO Translated_Word_3 VALUES (5,  2);
+INSERT INTO Translated_Word_3 VALUES (6,  6);
+INSERT INTO Translated_Word_3 VALUES (7,  3);
+INSERT INTO Translated_Word_3 VALUES (8,  2);
+INSERT INTO Translated_Word_3 VALUES (9,  5);
+INSERT INTO Translated_Word_3 VALUES (10, 4);
+INSERT INTO Translated_Word_3 VALUES (11, 5);
+
+INSERT INTO Translated_Word_4 VALUES (1,  94);
+INSERT INTO Translated_Word_4 VALUES (2,  91);
+INSERT INTO Translated_Word_4 VALUES (3,  88);
+INSERT INTO Translated_Word_4 VALUES (4,  96);
+INSERT INTO Translated_Word_4 VALUES (5,  83);
+INSERT INTO Translated_Word_4 VALUES (6,  92);
+INSERT INTO Translated_Word_4 VALUES (7,  90);
+INSERT INTO Translated_Word_4 VALUES (8,  85);
+INSERT INTO Translated_Word_4 VALUES (9,  93);
+INSERT INTO Translated_Word_4 VALUES (10, 87);
+INSERT INTO Translated_Word_4 VALUES (11, 95);
+
+INSERT INTO Translated_Word_5 VALUES (1, 'HELLO');
+INSERT INTO Translated_Word_5 VALUES (2, 'THANK');
+INSERT INTO Translated_Word_5 VALUES (3, 'HELP');
+INSERT INTO Translated_Word_5 VALUES (4, 'YES');
+INSERT INTO Translated_Word_5 VALUES (5, 'NO');
+INSERT INTO Translated_Word_5 VALUES (6, 'PLEASE');
+INSERT INTO Translated_Word_5 VALUES (7, 'YES');
+INSERT INTO Translated_Word_5 VALUES (8, 'NO');
+INSERT INTO Translated_Word_5 VALUES (9, 'SORRY');
+INSERT INTO Translated_Word_5 VALUES (10, 'GOOD');
+INSERT INTO Translated_Word_5 VALUES (11, 'HELLO');
+
+INSERT INTO Translated_Word_6 VALUES (1, 1);
+INSERT INTO Translated_Word_6 VALUES (2, 1);
+INSERT INTO Translated_Word_6 VALUES (3, 1);
+INSERT INTO Translated_Word_6 VALUES (4, 1);
+INSERT INTO Translated_Word_6 VALUES (5, 1);
+INSERT INTO Translated_Word_6 VALUES (6, 1);
+INSERT INTO Translated_Word_6 VALUES (7, 1);
+INSERT INTO Translated_Word_6 VALUES (8, 1);
+INSERT INTO Translated_Word_6 VALUES (9, 2);
+INSERT INTO Translated_Word_6 VALUES (10, 2);
+INSERT INTO Translated_Word_6 VALUES (11, 2);
+
