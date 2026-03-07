@@ -1,296 +1,130 @@
 CREATE TABLE Calibrated_User( 
-
-user_id INT PRIMARY KEY, 
-
-def_id INT, 
-
-date_of_creation DATE NOT NULL, 
-
-email VARCHAR[50] NOT NULL, 
-
-name VARCHAR[50], 
-
-UNIQUE(email), 
-
-FOREIGN KEY(def_id) REFERENCES Calibrated_Definition(def_id)) 
-
+    user_id INT PRIMARY KEY, 
+    def_id INT, 
+    date_of_creation DATE NOT NULL, 
+    email VARCHAR[50] NOT NULL, 
+    name VARCHAR[50], 
+    UNIQUE(email), 
+    FOREIGN KEY(def_id) REFERENCES Calibrated_Definition(def_id)
+    ); 
  
-
-Deleting a definition does not logically require deleting the user. Therefore, ON DELETE does not need to cascade. 
-
- 
-
 CREATE TABLE Calibrated_Definition( 
-
-def_id INT PRIMARY KEY,  
-
-user_id INT, 
-
-gesture VARCHAR[255] NOT NULL,  
-
-def_name VARCHAR[50] NOT NULL,  
-
-description VARCHAR[255] 
-
-FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 	 
-
-ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the user_id foreign key because a definition cannot exist without the user who created it. 
-
- 
+    def_id INT PRIMARY KEY,  
+    user_id INT, 
+    gesture VARCHAR[255] NOT NULL,  
+    def_name VARCHAR[50] NOT NULL,  
+    description VARCHAR[255] 
+    FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 	 
+    ON DELETE CASCADE
+); 
 
 CREATE TABLE Created_Documented_Recording( 
-
-recording_id INT PRIMARY KEY, 
-
-transcript_id INT, 
-
-user_id INT,  
-
-fps INT NOT NULL, 
-
-recording_date DATE NOT NULL,  
-
-recording_name VARCHAR[50] NOT NULL, 
-
-FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1  
-
-(transcript_id), 
-
-FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
-
-ON DELETE CASCADE, 
-
-UNIQUE(recording_name)) 
-
- 
-
-We used ON DELETE CASCADE for the user_id foreign key because a Recording cannot exist without the user who created it. 
-
- 
+    recording_id INT PRIMARY KEY, 
+    transcript_id INT, 
+    user_id INT,  
+    fps INT NOT NULL, 
+    recording_date DATE NOT NULL,  
+    recording_name VARCHAR[50] NOT NULL, 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1  
+    (transcript_id), 
+    FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
+    ON DELETE CASCADE, 
+    UNIQUE(recording_name)
+); 
 
 CREATE TABLE Contained_Analyzed_Frame1( 
-
-data VARCHAR[255] NOT NULL, 
-
-recording_id INT, 
-
-frame_id INT, 
-
-timestamp TIMESTAMP NOT NULL, 
-
-PRIMARY KEY(recording_id, frame_id), 
-
-FOREIGN KEY(recording_id) REFERENCES  
-
-Created_Documented_Recording(recording_id) 
-
-ON DELETE CASCADE, 
-
-FOREIGN KEY(data) REFERENCES Contained_Analyzed_Frame2(data) 
-
-ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the recording _id foreign key because a Frame cannot exist without the original recording. 
-
- 
-
-We used ON DELETE CASCADE for the data foreign key because a Frame cannot exist without the data in the Frame itself. 
-
- 
+    data VARCHAR[255] NOT NULL, 
+    recording_id INT, 
+    frame_id INT, 
+    timestamp TIMESTAMP NOT NULL, 
+    PRIMARY KEY(recording_id, frame_id), 
+    FOREIGN KEY(recording_id) REFERENCES  
+    Created_Documented_Recording(recording_id) 
+    ON DELETE CASCADE, 
+    FOREIGN KEY(data) REFERENCES Contained_Analyzed_Frame2(data) 
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Contained_Analyzed_Frame2( 
+    data VARCHAR[255] PRIMARY KEY, 
+    resolution VARCHAR[255] NOT NULL
+) ;
 
-data VARCHAR[255] PRIMARY KEY, 
-
-resolution VARCHAR[255] NOT NULL) 
-
- 
 
 CREATE TABLE Live( 
-
-recording_id INT PRIMARY KEY, 
-
-livestream_source VARCHAR[255] NOT NULL, 
-
-FOREIGN KEY (recording_id) REFERENCES  
-
-Created_Documented_Recording(recording_id) 
-
-ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the recording_id foreign key because a Live cannot exist without the original recording. 
-
- 
+    recording_id INT PRIMARY KEY, 
+    livestream_source VARCHAR[255] NOT NULL, 
+    FOREIGN KEY (recording_id) REFERENCES  
+    Created_Documented_Recording(recording_id) 
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Video( 
-
-recording_id INT PRIMARY KEY, 
-
-duration INT NOT NULL, 
-
-FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording 	 
-
-(recording_id) 
-
-ON DELETE CASCADE) 
-
-We used ON DELETE CASCADE for the recording_id foreign key because a Video cannot exist without the original recording. 
-
+    recording_id INT PRIMARY KEY, 
+    duration INT NOT NULL, 
+    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording 	 
+    (recording_id) 
+    ON DELETE CASCADE
+);
  
 
-CREATE TABLE Documented_Saved_Transcript_1 ( 
-
-transcript_id INT PRIMARY KEY, 
-
-recording_id INT, 
-
-FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 		(recording_id) 
-
-ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the recording_id foreign key because a Transcript cannot exist without the original recording. 
-
-  
+CREATE TABLE Documented_Saved_Transcript_1 (
+    transcript_id INT PRIMARY KEY, 
+    recording_id INT, 
+    FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 		(recording_id) 
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Documented_Saved_Transcript_2 ( 
-
-transcript_id INT PRIMARY KEY, 
-
-user_id INT, 
-
-FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-
-ON DELETE CASCADE, 
-
-FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
-
-ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the transcript_id foreign key because this relation cannot exist without the transcript. 
-
- 
-
-We used ON DELETE CASCADE for the user_id foreign key because a Transcript cannot exist without the user who wants the transcript. 
-
-  
+    transcript_id INT PRIMARY KEY, 
+    user_id INT, 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1(transcript_id) 
+    ON DELETE CASCADE, 
+    FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Documented_Saved_Transcript_3 ( 
-
-transcript_id INT PRIMARY KEY, 
-
-transcript_data VARCHAR[255], 
-
-FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-
-ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the transcript_id foreign key because this relation cannot exist without the transcript. 
-
- 
-
-  
+    transcript_id INT PRIMARY KEY, 
+    transcript_data VARCHAR[255], 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1(transcript_id) 
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Documented_Saved_Transcript_4 ( 
-
-transcript_id INT PRIMARY KEY, 
-
-word_count INT 
-
-FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-
-ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the transcript_id foreign key because this relation cannot exist without the transcript. 
-
-  
+    transcript_id INT PRIMARY KEY, 
+    word_count INT 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
+    ON DELETE CASCADE
+) 
 
 CREATE TABLE Documented_Saved_Transcript_5 ( 
-
 transcript_id INT PRIMARY KEY, 
-
 transcription_date date, 
-
 FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-
 ON DELETE CASCADE) 
 
- 
-
-We used ON DELETE CASCADE for the transcript_id foreign key because this relation cannot exist without the transcript. 
-
-  
 
 CREATE TABLE Documented_Saved_Transcript_6 ( 
-
 transcript_id INT PRIMARY KEY, 
-
 language VARCHAR[50], 
-
 FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-
 ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the transcript_id foreign key because this relation cannot exist without the transcript. 
-
-  
 
 CREATE TABLE Documented_Saved_Transcript_7 ( 
-
 recording_id INT PRIMARY KEY, 
-
 transcript_id INT, 
-
 FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-
 ON DELETE CASCADE) 
 
- 
-
-We used ON DELETE CASCADE for the transcript_id foreign key because this relation cannot exist without the transcript. 
-
-  
 
 CREATE TABLE Documented_Saved_Transcript_8 ( 
-
 recording_id INT PRIMARY KEY, 
-
 user_id INT, 
-
 FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 		(recording_id) 
-
 ON DELETE CASCADE, 
-
 FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
-
 ON DELETE CASCADE) 
-
- 
-
-We used ON DELETE CASCADE for the recording _id foreign key because a transcript cannot exist without the original recording. 
-
- 
-
-We used ON DELETE CASCADE for the user_id foreign key because a Transcript cannot exist without the user who wants the transcript. 
-
-  
 
 CREATE TABLE Documented_Saved_Transcript_9 ( 
 
