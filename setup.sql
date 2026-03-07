@@ -911,3 +911,25 @@ INSERT INTO Translated_Word_6 VALUES (37, 5);
 INSERT INTO Translated_Word_6 VALUES (38, 5);
 INSERT INTO Translated_Word_6 VALUES (39, 5);
 
+
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('HELLO THANK HELP YES NO PLEASE', 6);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('YES NO SORRY GOOD HELLO', 5);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('HELP PLEASE SORRY', 3);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('HELLO HELP PLEASE', 3);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('GOOD YES HELLO THANK', 4);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('NO SORRY', 2);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('HELLO YES GOOD', 3);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('YES HELLO GOOD', 3);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('THANK PLEASE YES SORRY GOOD', 5);
+INSERT INTO Documented_Saved_Transcript_13 VALUES ('HELLO THANK YES GOOD PLEASE', 5);
+
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('HELLO THANK HELP YES NO PLEASE', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('YES NO SORRY GOOD HELLO', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('HELP PLEASE SORRY', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('HELLO HELP PLEASE', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('GOOD YES HELLO THANK', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('NO SORRY', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('HELLO YES GOOD', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('YES HELLO GOOD', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('THANK PLEASE YES SORRY GOOD', 'English');
+INSERT INTO Documented_Saved_Transcript_14 VALUES ('HELLO THANK YES GOOD PLEASE', 'English');
