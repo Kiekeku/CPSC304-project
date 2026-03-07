@@ -169,13 +169,13 @@ CREATE TABLE Documented_Saved_Transcript_14 (
 CREATE TABLE Translated_Word_1 ( 
     instance_id INT PRIMARY KEY,  
     transcript_id INT, 
-    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id)  
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id)  
     ON DELETE CASCADE);
 
 CREATE TABLE Translated_Word_2 ( 
     instance_id INT PRIMARY KEY,  
     handmark_id INT, 
-    FOREIGN KEY (handmark_id) REFERENCES Predicted_Gesture_Handmark1 		(handmark_id)  
+    FOREIGN KEY (handmark_id) REFERENCES Predicted_Gesture_Handmark1 (handmark_id)  
     ON DELETE CASCADE, 
     FOREIGN KEY (instance_id) REFERENCES Translated_Word_1 (instance_id) 
     ON DELETE CASCADE);
