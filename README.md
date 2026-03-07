@@ -29,6 +29,7 @@ ORACLE_PORT=1522
 ORACLE_DBNAME=stu
 
 ```
+test
 
 ### 2. Configure Team Number
 **Only perform this step if you want to run the project on the remote servers**
