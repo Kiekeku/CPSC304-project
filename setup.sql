@@ -1,5 +1,7 @@
 /* CPSC 304 Group 107 - ASL Translator
-- Run this file to fully reset and repopulate the database.*/
+- Run this file to fully reset and repopulate the database.
+- In our project, this  file is split up into two files to make the application work.*/*/
+
 
 /* drop tables */
 
