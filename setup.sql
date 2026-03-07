@@ -307,3 +307,75 @@ CREATE TABLE Translated_Word_9 (
     word_timestamp TIMESTAMP NOT NULL, 
     FOREIGN KEY (handmark_id) REFERENCES Predicted_Gesture_Handmark1(handmark_id) 
     ON DELETE CASCADE);
+
+/* insert tables */
+
+INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_open_palm',    '1920x1080');
+INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_closed_fist',  '1920x1080');
+INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_index_point',  '1280x720');
+INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_thumb_up',     '1280x720');
+INSERT INTO Contained_Analyzed_Frame2 VALUES ('frame_data_victory_sign', '1920x1080');
+
+-- English word lookup (referenced by Translated_Word_5 and Translated_Word_8)
+INSERT INTO Translated_Word_7 VALUES ('HELLO',  5);
+INSERT INTO Translated_Word_7 VALUES ('THANK',  5);
+INSERT INTO Translated_Word_7 VALUES ('HELP',   4);
+INSERT INTO Translated_Word_7 VALUES ('YES',    3);
+INSERT INTO Translated_Word_7 VALUES ('NO',     2);
+INSERT INTO Translated_Word_7 VALUES ('PLEASE', 6);
+INSERT INTO Translated_Word_7 VALUES ('SORRY',  5);
+INSERT INTO Translated_Word_7 VALUES ('GOOD',   4);
+
+-- Hand position patterns (referenced by Predicted_Gesture_Handmark1)
+INSERT INTO Predicted_Gesture_Handmark2 VALUES (1, 12, '0.45,0.50,0.50', '0.30,0.35,0.40');
+INSERT INTO Predicted_Gesture_Handmark2 VALUES (2,  8, '0.20,0.25,0.30', '0.60,0.65,0.70');
+INSERT INTO Predicted_Gesture_Handmark2 VALUES (3, 15, '0.70,0.75,0.80', '0.20,0.25,0.30');
+INSERT INTO Predicted_Gesture_Handmark2 VALUES (4, 10, '0.35,0.40,0.45', '0.50,0.55,0.60');
+INSERT INTO Predicted_Gesture_Handmark2 VALUES (5,  9, '0.55,0.60,0.65', '0.10,0.15,0.20');
+
+-- ML models (handmark_id FK added via UPDATE after Handmark1 rows exist)
+INSERT INTO Trained_Machine_Learning_Model (model_id, accuracy, hyperparameter, model_type)
+    VALUES (1, 92, 100, 'RandomForest');
+INSERT INTO Trained_Machine_Learning_Model (model_id, accuracy, hyperparameter, model_type)
+    VALUES (2, 87,  50, 'RandomForest');
+INSERT INTO Trained_Machine_Learning_Model (model_id, accuracy, hyperparameter, model_type)
+    VALUES (3, 78, 200, 'MLP');
+INSERT INTO Trained_Machine_Learning_Model (model_id, accuracy, hyperparameter, model_type)
+    VALUES (4, 95, 150, 'MLP');
+INSERT INTO Trained_Machine_Learning_Model (model_id, accuracy, hyperparameter, model_type)
+    VALUES (5, 81,  75, 'RandomForest');
+
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (101, 1, 1);
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (102, 2, 1);
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (103, 3, 1);
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (104, 4, 2);
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (105, 5, 2);
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (106, 1, 3);
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (107, 2, 3);
+INSERT INTO Predicted_Gesture_Handmark1 VALUES (108, 3, 4);
+
+UPDATE Trained_Machine_Learning_Model SET handmark_id = 101 WHERE model_id = 1;
+UPDATE Trained_Machine_Learning_Model SET handmark_id = 104 WHERE model_id = 2;
+UPDATE Trained_Machine_Learning_Model SET handmark_id = 106 WHERE model_id = 3;
+UPDATE Trained_Machine_Learning_Model SET handmark_id = 108 WHERE model_id = 4;
+UPDATE Trained_Machine_Learning_Model SET handmark_id = 102 WHERE model_id = 5;
+
+INSERT INTO Translated_Word_9 VALUES (101, TIMESTAMP '2025-11-01 10:00:00.100');
+INSERT INTO Translated_Word_9 VALUES (102, TIMESTAMP '2025-11-01 10:00:00.233');
+INSERT INTO Translated_Word_9 VALUES (103, TIMESTAMP '2025-12-01 09:00:00.150');
+INSERT INTO Translated_Word_9 VALUES (104, TIMESTAMP '2025-12-10 11:00:00.200');
+INSERT INTO Translated_Word_9 VALUES (105, TIMESTAMP '2025-12-15 13:00:00.300');
+INSERT INTO Translated_Word_9 VALUES (106, TIMESTAMP '2025-11-15 14:00:00.100');
+INSERT INTO Translated_Word_9 VALUES (107, TIMESTAMP '2026-01-05 15:00:00.050');
+INSERT INTO Translated_Word_9 VALUES (108, TIMESTAMP '2026-01-20 09:30:00.200');
+
+INSERT INTO Translated_Word_8 VALUES (1, 101, 'HELLO', 94);
+INSERT INTO Translated_Word_8 VALUES (1, 102, 'THANK', 91);
+INSERT INTO Translated_Word_8 VALUES (1, 103, 'HELP', 88);
+INSERT INTO Translated_Word_8 VALUES (1, 104, 'YES', 96);
+INSERT INTO Translated_Word_8 VALUES (1, 105, 'NO', 83);
+INSERT INTO Translated_Word_8 VALUES (2, 101, 'HELLO', 87);
+INSERT INTO Translated_Word_8 VALUES (2, 102, 'SORRY', 85);
+INSERT INTO Translated_Word_8 VALUES (2, 103, 'HELP', 79);
+INSERT INTO Translated_Word_8 VALUES (3, 104, 'GOOD', 91);
+INSERT INTO Translated_Word_8 VALUES (3, 101, 'HELLO', 86); 
