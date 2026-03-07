@@ -1,4 +1,4 @@
-# Node Project Setup
+# Project Setup
 
 Please refer to the [sample project setup instructions here](https://www.students.cs.ubc.ca/~cs-304/resources/javascript-oracle-resources/node-setup.html#remote-deploy-item) for more in-depth instructions.
 
@@ -47,3 +47,16 @@ Execute the remote start script:
 ```bash
 ./remote-start.sh
 ```
+
+# Project Info
+
+This project runs as one service:
+- FastAPI backend (`backend/`)
+- React frontend build served by FastAPI (`frontend/dist`)
+
+Update `.env` values:
+- `ORACLE_USER`
+- `ORACLE_PASS`
+- `PORT` (for web app)
+- `ORACLE_HOST`, `ORACLE_PORT`, `ORACLE_DBNAME`
+

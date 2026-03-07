@@ -1,11 +1,21 @@
 # Dependency directories
 node_modules/
+frontend/node_modules/
 
 # Logs
 *.log
 
 # dotenv environment variable files
 .env
+
+# Python virtual environments and cache
+.venv/
+backend/.venv/
+__pycache__/
+*.pyc
+
+# Runtime artifacts
+.runtime/
 
 # IDEs and editors
 .vscode/
