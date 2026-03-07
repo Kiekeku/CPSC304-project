@@ -1,3 +1,51 @@
+/* CPSC 304 Group 107 - ASL Translator
+- Run this file to fully reset and repopulate the database.*/
+
+/* drop tables */
+
+DROP TABLE Translated_Word_9 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_8 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_6 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_5 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_4 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_3 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_2 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_1 CASCADE CONSTRAINTS;
+DROP TABLE Translated_Word_7 CASCADE CONSTRAINTS;
+
+DROP TABLE Predicted_Gesture_Handmark1 CASCADE CONSTRAINTS;
+DROP TABLE Predicted_Gesture_Handmark2 CASCADE CONSTRAINTS;
+
+DROP TABLE Trained_Machine_Learning_Model CASCADE CONSTRAINTS;
+
+DROP TABLE Contained_Analyzed_Frame1 CASCADE CONSTRAINTS;
+DROP TABLE Contained_Analyzed_Frame2 CASCADE CONSTRAINTS;
+
+DROP TABLE Live CASCADE CONSTRAINTS;
+DROP TABLE Video CASCADE CONSTRAINTS;
+
+DROP TABLE Documented_Saved_Transcript_14 CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_13 CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_12 CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_11 CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_10 CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_9  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_8  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_6  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_5  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_4  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_3  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_2  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_7  CASCADE CONSTRAINTS;
+DROP TABLE Documented_Saved_Transcript_1  CASCADE CONSTRAINTS;
+
+DROP TABLE Created_Documented_Recording CASCADE CONSTRAINTS;
+
+DROP TABLE Calibrated_Definition CASCADE CONSTRAINTS;
+DROP TABLE Calibrated_User CASCADE CONSTRAINTS;
+
+/* create tables */
+
 CREATE TABLE Calibrated_User( 
     user_id INT PRIMARY KEY, 
     def_id INT, 
