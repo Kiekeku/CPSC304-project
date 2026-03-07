@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 BACKEND_ENV_FILE = Path(__file__).resolve().parent / ".env"
 ROOT_ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
-# Load root .env first, then allow backend/.env to override when present.
 load_dotenv(ROOT_ENV_FILE)
 load_dotenv(BACKEND_ENV_FILE, override=True)
 
@@ -16,13 +15,16 @@ _POOL = None
 
 
 def get_db_config() -> dict:
+    pool_min = int(os.getenv("ORACLE_POOL_MIN", "1"))
+    pool_max = int(os.getenv("ORACLE_POOL_MAX", "1"))
+    pool_increment = int(os.getenv("ORACLE_POOL_INCREMENT", "1"))
     return {
         "user": os.getenv("ORACLE_USER"),
         "password": os.getenv("ORACLE_PASS"),
         "dsn": f"{os.getenv('ORACLE_HOST')}:{os.getenv('ORACLE_PORT')}/{os.getenv('ORACLE_DBNAME')}",
-        "min": 1,
-        "max": 3,
-        "increment": 1,
+        "min": pool_min,
+        "max": pool_max,
+        "increment": pool_increment,
         "timeout": 60,
     }
 

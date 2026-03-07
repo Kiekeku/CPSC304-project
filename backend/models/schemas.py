@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -14,3 +16,19 @@ class UpdateNameDemotableRequest(BaseModel):
 class PredictRequest(BaseModel):
     features: dict = Field(default_factory=dict)
     metadata: dict = Field(default_factory=dict)
+
+
+class TableInsertRequest(BaseModel):
+    tableName: str
+    values: dict[str, Any] = Field(default_factory=dict)
+
+
+class TableUpdateRequest(BaseModel):
+    tableName: str
+    keys: dict[str, Any] = Field(default_factory=dict)
+    values: dict[str, Any] = Field(default_factory=dict)
+
+
+class TableDeleteRequest(BaseModel):
+    tableName: str
+    keys: dict[str, Any] = Field(default_factory=dict)

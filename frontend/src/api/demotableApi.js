@@ -4,30 +4,42 @@ export async function fetchDbConnectionStatus() {
   return requestText('/check-db-connection');
 }
 
-export async function fetchDemotable() {
-  return requestJson('/demotable');
+export async function fetchTables() {
+  return requestJson('/tables');
+}
+
+export async function fetchTableMetadata(tableName) {
+  return requestJson(`/table-metadata/${encodeURIComponent(tableName)}`);
+}
+
+export async function fetchTableRows(tableName) {
+  return requestJson(`/table-rows/${encodeURIComponent(tableName)}`);
 }
 
 export async function initiateDemotable() {
   return requestJson('/initiate-demotable', { method: 'POST' });
 }
 
-export async function insertDemotable(id, name) {
-  return requestJson('/insert-demotable', {
+export async function insertTableRow(tableName, values) {
+  return requestJson('/table-insert', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, name })
+    body: JSON.stringify({ tableName, values })
   });
 }
 
-export async function updateNameDemotable(oldName, newName) {
-  return requestJson('/update-name-demotable', {
+export async function updateTableRow(tableName, keys, values) {
+  return requestJson('/table-update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ oldName, newName })
+    body: JSON.stringify({ tableName, keys, values })
   });
 }
 
-export async function countDemotable() {
-  return requestJson('/count-demotable');
+export async function deleteTableRow(tableName, keys) {
+  return requestJson('/table-delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tableName, keys })
+  });
 }

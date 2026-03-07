@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Response, status
 
-from models.schemas import InsertDemotableRequest, UpdateNameDemotableRequest
+from models.schemas import TableDeleteRequest, TableInsertRequest, TableUpdateRequest
 from services.demotable_service import (
-    count_demotable,
-    fetch_demotable,
+    delete_table_row,
+    fetch_table_rows,
+    get_table_metadata,
     initiate_demotable,
-    insert_demotable,
+    insert_table_row,
+    list_tables,
     test_oracle_connection,
-    update_name_demotable,
+    update_table_row,
 )
 
 router = APIRouter()
@@ -22,9 +24,9 @@ def check_db_connection() -> Response:
     )
 
 
-@router.get("/demotable")
-def get_demotable() -> dict:
-    return {"data": fetch_demotable()}
+@router.get("/tables")
+def get_tables() -> dict:
+    return {"tables": list_tables()}
 
 
 @router.post("/initiate-demotable")
@@ -35,26 +37,43 @@ def post_initiate_demotable(response: Response) -> dict:
     return {"success": success}
 
 
-@router.post("/insert-demotable")
-def post_insert_demotable(payload: InsertDemotableRequest, response: Response) -> dict:
-    success = insert_demotable(payload.id, payload.name)
+@router.get("/table-metadata/{table_name}")
+def get_metadata(table_name: str, response: Response) -> dict:
+    metadata = get_table_metadata(table_name)
+    if metadata is None:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"success": False, "message": "Table not found"}
+    return {"success": True, "metadata": metadata}
+
+
+@router.get("/table-rows/{table_name}")
+def get_table_rows(table_name: str, response: Response) -> dict:
+    metadata = get_table_metadata(table_name)
+    if metadata is None:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"success": False, "message": "Table not found", "data": []}
+    return {"success": True, "data": fetch_table_rows(table_name)}
+
+
+@router.post("/table-insert")
+def post_table_insert(payload: TableInsertRequest, response: Response) -> dict:
+    success, message = insert_table_row(payload.tableName, payload.values)
     if not success:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    return {"success": success}
+        response.status_code = status.HTTP_400_BAD_REQUEST
+    return {"success": success, "message": message}
 
 
-@router.post("/update-name-demotable")
-def post_update_name_demotable(payload: UpdateNameDemotableRequest, response: Response) -> dict:
-    success = update_name_demotable(payload.oldName, payload.newName)
+@router.post("/table-update")
+def post_table_update(payload: TableUpdateRequest, response: Response) -> dict:
+    success, message = update_table_row(payload.tableName, payload.keys, payload.values)
     if not success:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    return {"success": success}
+        response.status_code = status.HTTP_400_BAD_REQUEST
+    return {"success": success, "message": message}
 
 
-@router.get("/count-demotable")
-def get_count_demotable(response: Response) -> dict:
-    table_count = count_demotable()
-    success = table_count >= 0
+@router.post("/table-delete")
+def post_table_delete(payload: TableDeleteRequest, response: Response) -> dict:
+    success, message = delete_table_row(payload.tableName, payload.keys)
     if not success:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    return {"success": success, "count": table_count}
+        response.status_code = status.HTTP_400_BAD_REQUEST
+    return {"success": success, "message": message}

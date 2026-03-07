@@ -5,7 +5,7 @@ export default function App() {
   return (
     <main className="container">
       <h1>Database Application</h1>
-      <p className="intro-text">Demotable operations and ML prediction workspace.</p>
+      <p className="intro-text">Manage Oracle tables and run ML prediction demos.</p>
 
       <DemotableWorkspace />
       <MlWorkspace />

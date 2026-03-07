@@ -3,7 +3,6 @@ const loadEnvFile = require('./utils/envUtil');
 
 const envVariables = loadEnvFile('./.env');
 
-// Database configuration setup. Ensure your .env file has the required database credentials.
 const dbConfig = {
     user: envVariables.ORACLE_USER,
     password: envVariables.ORACLE_PASS,
@@ -14,7 +13,6 @@ const dbConfig = {
     poolTimeout: 60
 };
 
-// initialize connection pool
 async function initializeConnectionPool() {
     try {
         await oracledb.createPool(dbConfig);
@@ -27,7 +25,7 @@ async function initializeConnectionPool() {
 async function closePoolAndExit() {
     console.log('\nTerminating');
     try {
-        await oracledb.getPool().close(10); // 10 seconds grace period for connections to finish
+        await oracledb.getPool().close(10);
         console.log('Pool closed');
         process.exit(0);
     } catch (err) {
@@ -43,12 +41,10 @@ process
     .once('SIGINT', closePoolAndExit);
 
 
-// ----------------------------------------------------------
-// Wrapper to manage OracleDB actions, simplifying connection handling.
 async function withOracleDB(action) {
     let connection;
     try {
-        connection = await oracledb.getConnection(); // Gets a connection from the default pool 
+        connection = await oracledb.getConnection();
         return await action(connection);
     } catch (err) {
         console.error(err);
@@ -65,9 +61,6 @@ async function withOracleDB(action) {
 }
 
 
-// ----------------------------------------------------------
-// Core functions for database operations
-// Modify these functions, especially the SQL queries, based on your project's requirements and design.
 async function testOracleConnection() {
     return await withOracleDB(async (connection) => {
         return true;
