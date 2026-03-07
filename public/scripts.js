@@ -1,19 +1,3 @@
-/*
- * These functions below are for various webpage functionalities. 
- * Each function serves to process data on the frontend:
- *      - Before sending requests to the backend.
- *      - After receiving responses from the backend.
- * 
- * To tailor them to your specific needs,
- * adjust or expand these functions to match both your 
- *   backend endpoints 
- * and 
- *   HTML structure.
- * 
- */
-
-
-// This function checks the database connection and updates its status on the frontend.
 async function checkDbConnection() {
     const statusElem = document.getElementById('dbStatus');
     const loadingGifElem = document.getElementById('loadingGif');
@@ -22,9 +6,9 @@ async function checkDbConnection() {
         method: "GET"
     });
 
-    // Hide the loading GIF once the response is received.
+
     loadingGifElem.style.display = 'none';
-    // Display the statusElem's text in the placeholder.
+
     statusElem.style.display = 'inline';
 
     response.text()
@@ -32,11 +16,10 @@ async function checkDbConnection() {
         statusElem.textContent = text;
     })
     .catch((error) => {
-        statusElem.textContent = 'connection timed out';  // Adjust error handling if required.
+        statusElem.textContent = 'connection timed out';
     });
 }
 
-// Fetches data from the demotable and displays it.
 async function fetchAndDisplayUsers() {
     const tableElement = document.getElementById('demotable');
     const tableBody = tableElement.querySelector('tbody');
@@ -48,7 +31,6 @@ async function fetchAndDisplayUsers() {
     const responseData = await response.json();
     const demotableContent = responseData.data;
 
-    // Always clear old, already fetched data before new fetching process.
     if (tableBody) {
         tableBody.innerHTML = '';
     }
@@ -62,7 +44,6 @@ async function fetchAndDisplayUsers() {
     });
 }
 
-// This function resets or initializes the demotable.
 async function resetDemotable() {
     const response = await fetch("/initiate-demotable", {
         method: 'POST'
@@ -78,7 +59,6 @@ async function resetDemotable() {
     }
 }
 
-// Inserts new records into the demotable.
 async function insertDemotable(event) {
     event.preventDefault();
 
@@ -107,7 +87,6 @@ async function insertDemotable(event) {
     }
 }
 
-// Updates names in the demotable.
 async function updateNameDemotable(event) {
     event.preventDefault();
 
@@ -136,8 +115,6 @@ async function updateNameDemotable(event) {
     }
 }
 
-// Counts rows in the demotable.
-// Modify the function accordingly if using different aggregate functions or procedures.
 async function countDemotable() {
     const response = await fetch("/count-demotable", {
         method: 'GET'
@@ -154,10 +131,6 @@ async function countDemotable() {
     }
 }
 
-
-// ---------------------------------------------------------------
-// Initializes the webpage functionalities.
-// Add or remove event listeners based on the desired functionalities.
 window.onload = function() {
     checkDbConnection();
     fetchTableData();
@@ -167,8 +140,6 @@ window.onload = function() {
     document.getElementById("countDemotable").addEventListener("click", countDemotable);
 };
 
-// General function to refresh the displayed table data. 
-// You can invoke this after any table-modifying operation to keep consistency.
 function fetchTableData() {
     fetchAndDisplayUsers();
 }
