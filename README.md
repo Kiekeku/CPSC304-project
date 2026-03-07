@@ -12,6 +12,8 @@ Please refer to the [sample project setup instructions here](https://www.student
 
 Create a `.env` file in the root directory of the project with the following contents:
 
+test
+
 ```
 # TODO: Edit the values below this line according to the given placeholders
 # Replace 'ora_YOUR-CWL-USERNAME' with "ora_" (no quotation marks) followed by your CWL username.
