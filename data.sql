@@ -94,37 +94,37 @@ CREATE TABLE Documented_Saved_Transcript_3 (
 CREATE TABLE Documented_Saved_Transcript_4 ( 
     transcript_id INT PRIMARY KEY, 
     word_count INT 
-    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id) 
     ON DELETE CASCADE
-) 
+);
 
 CREATE TABLE Documented_Saved_Transcript_5 ( 
-transcript_id INT PRIMARY KEY, 
-transcription_date date, 
-FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-ON DELETE CASCADE) 
+    transcript_id INT PRIMARY KEY, 
+    transcription_date date, 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id) 
+    ON DELETE CASCADE);
 
 
 CREATE TABLE Documented_Saved_Transcript_6 ( 
-transcript_id INT PRIMARY KEY, 
-language VARCHAR[50], 
-FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-ON DELETE CASCADE) 
+    transcript_id INT PRIMARY KEY, 
+    language VARCHAR[50], 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id) 
+    ON DELETE CASCADE);
 
 CREATE TABLE Documented_Saved_Transcript_7 ( 
-recording_id INT PRIMARY KEY, 
-transcript_id INT, 
-FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id) 
-ON DELETE CASCADE) 
+    recording_id INT PRIMARY KEY, 
+    transcript_id INT, 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id) 
+    ON DELETE CASCADE);
 
 
 CREATE TABLE Documented_Saved_Transcript_8 ( 
-recording_id INT PRIMARY KEY, 
-user_id INT, 
-FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 		(recording_id) 
-ON DELETE CASCADE, 
-FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
-ON DELETE CASCADE) 
+    recording_id INT PRIMARY KEY, 
+    user_id INT, 
+    FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 (recording_id) 
+    ON DELETE CASCADE, 
+    FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
+    ON DELETE CASCADE);
 
 CREATE TABLE Documented_Saved_Transcript_9 ( 
     recording_id INT PRIMARY KEY, 
