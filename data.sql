@@ -25,8 +25,7 @@ CREATE TABLE Created_Documented_Recording(
     fps INT NOT NULL, 
     recording_date DATE NOT NULL,  
     recording_name VARCHAR[50] NOT NULL, 
-    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1  
-    (transcript_id), 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1(transcript_id), 
     FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
     ON DELETE CASCADE, 
     UNIQUE(recording_name)
@@ -54,16 +53,14 @@ CREATE TABLE Contained_Analyzed_Frame2(
 CREATE TABLE Live( 
     recording_id INT PRIMARY KEY, 
     livestream_source VARCHAR[255] NOT NULL, 
-    FOREIGN KEY (recording_id) REFERENCES  
-    Created_Documented_Recording(recording_id) 
+    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording(recording_id) 
     ON DELETE CASCADE
 );
 
 CREATE TABLE Video( 
     recording_id INT PRIMARY KEY, 
     duration INT NOT NULL, 
-    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording 	 
-    (recording_id) 
+    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording (recording_id) 
     ON DELETE CASCADE
 );
  
@@ -71,7 +68,7 @@ CREATE TABLE Video(
 CREATE TABLE Documented_Saved_Transcript_1 (
     transcript_id INT PRIMARY KEY, 
     recording_id INT, 
-    FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 		(recording_id) 
+    FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 (recording_id) 
     ON DELETE CASCADE
 );
 
@@ -169,13 +166,13 @@ CREATE TABLE Documented_Saved_Transcript_14 (
 CREATE TABLE Translated_Word_1 ( 
     instance_id INT PRIMARY KEY,  
     transcript_id INT, 
-    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 		(transcript_id)  
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id)  
     ON DELETE CASCADE);
 
 CREATE TABLE Translated_Word_2 ( 
     instance_id INT PRIMARY KEY,  
     handmark_id INT, 
-    FOREIGN KEY (handmark_id) REFERENCES Predicted_Gesture_Handmark1 		(handmark_id)  
+    FOREIGN KEY (handmark_id) REFERENCES Predicted_Gesture_Handmark1(handmark_id)  
     ON DELETE CASCADE, 
     FOREIGN KEY (instance_id) REFERENCES Translated_Word_1 (instance_id) 
     ON DELETE CASCADE);
