@@ -66,53 +66,17 @@ CREATE TABLE Documented_Saved_Transcript_7 (
     FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id) 
     ON DELETE CASCADE);
 
-CREATE TABLE Created_Documented_Recording( 
-    recording_id INT PRIMARY KEY, 
-    transcript_id INT, 
-    user_id INT,  
-    fps INT NOT NULL, 
-    recording_date DATE NOT NULL,  
-    recording_name VARCHAR[50] NOT NULL, 
-    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1(transcript_id), 
-    FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
-    ON DELETE CASCADE, 
-    UNIQUE(recording_name)
-); 
-
-CREATE TABLE Contained_Analyzed_Frame1( 
-    data VARCHAR[255] NOT NULL, 
-    recording_id INT, 
-    frame_id INT, 
-    timestamp TIMESTAMP NOT NULL, 
-    PRIMARY KEY(recording_id, frame_id), 
-    FOREIGN KEY(recording_id) REFERENCES  
-    Created_Documented_Recording(recording_id) 
-    ON DELETE CASCADE, 
-    FOREIGN KEY(data) REFERENCES Contained_Analyzed_Frame2(data) 
-    ON DELETE CASCADE
-);
-
-CREATE TABLE Live( 
-    recording_id INT PRIMARY KEY, 
-    livestream_source VARCHAR[255] NOT NULL, 
-    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording(recording_id) 
-    ON DELETE CASCADE
-);
-
-CREATE TABLE Video( 
-    recording_id INT PRIMARY KEY, 
-    duration INT NOT NULL, 
-    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording (recording_id) 
-    ON DELETE CASCADE
-);
- 
-
 CREATE TABLE Documented_Saved_Transcript_1 (
     transcript_id INT PRIMARY KEY, 
     recording_id INT, 
     FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 (recording_id) 
     ON DELETE CASCADE
 );
+
+ALTER TABLE Documented_Saved_Transcript_7
+    ADD CONSTRAINT fk_t7_transcript
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1 (transcript_id)
+        ON DELETE CASCADE;
 
 CREATE TABLE Documented_Saved_Transcript_2 ( 
     transcript_id INT PRIMARY KEY, 
@@ -163,8 +127,6 @@ CREATE TABLE Documented_Saved_Transcript_9 (
     recording_id INT PRIMARY KEY, 
     transcript_data VARCHAR[255], 
     FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 (recording_id) 
-    ON DELETE CASCADE, 
-    FOREIGN KEY (transcript_data) REFERENCES Documented_Saved_Transcript_10 (transcript_data) 
     ON DELETE CASCADE);
 
 CREATE TABLE Documented_Saved_Transcript_10 ( 
@@ -177,8 +139,6 @@ CREATE TABLE Documented_Saved_Transcript_11 (
     recording_id INT PRIMARY KEY, 
     transcription_date date, 
     FOREIGN KEY (recording_id) REFERENCES Documented_Saved_Transcript_7 (recording_id) 
-    ON DELETE CASCADE, 
-    FOREIGN KEY (transcript_data) REFERENCES Documented_Saved_Transcript_10 (transcript_data) 
     ON DELETE CASCADE);
 
 CREATE TABLE Documented_Saved_Transcript_12 ( 
@@ -192,12 +152,52 @@ CREATE TABLE Documented_Saved_Transcript_13 (
     word_count INT, 
     FOREIGN KEY (transcript_data) REFERENCES Documented_Saved_Transcript_10 (transcript_data) 
     ON DELETE CASCADE);
-
+    
 CREATE TABLE Documented_Saved_Transcript_14 ( 
     transcript_data VARCHAR[255] PRIMARY KEY, 
     language VARCHAR[50], 
-    FOREIGN KEY (	transcript_data) REFERENCES Documented_Saved_Transcript1 (transcript_id) 
+    FOREIGN KEY (transcript_data) REFERENCES Documented_Saved_Transcript1 (transcript_id) 
     ON DELETE CASCADE);
+
+CREATE TABLE Created_Documented_Recording( 
+    recording_id INT PRIMARY KEY, 
+    transcript_id INT, 
+    user_id INT,  
+    fps INT NOT NULL, 
+    recording_date DATE NOT NULL,  
+    recording_name VARCHAR[50] NOT NULL, 
+    FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1(transcript_id), 
+    FOREIGN KEY (user_id) REFERENCES Calibrated_User (user_id) 
+    ON DELETE CASCADE, 
+    UNIQUE(recording_name)
+); 
+
+CREATE TABLE Live( 
+    recording_id INT PRIMARY KEY, 
+    livestream_source VARCHAR[255] NOT NULL, 
+    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording(recording_id) 
+    ON DELETE CASCADE
+);
+
+CREATE TABLE Video( 
+    recording_id INT PRIMARY KEY, 
+    duration INT NOT NULL, 
+    FOREIGN KEY (recording_id) REFERENCES Created_Documented_Recording (recording_id) 
+    ON DELETE CASCADE
+);
+
+CREATE TABLE Contained_Analyzed_Frame1( 
+    data VARCHAR[255] NOT NULL, 
+    recording_id INT, 
+    frame_id INT, 
+    timestamp TIMESTAMP NOT NULL, 
+    PRIMARY KEY(recording_id, frame_id), 
+    FOREIGN KEY(recording_id) REFERENCES  
+    Created_Documented_Recording(recording_id) 
+    ON DELETE CASCADE, 
+    FOREIGN KEY(data) REFERENCES Contained_Analyzed_Frame2(data) 
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Translated_Word_1 ( 
     instance_id INT PRIMARY KEY,  
