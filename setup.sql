@@ -796,3 +796,118 @@ INSERT INTO Translated_Word_6 VALUES (26, 4);
 INSERT INTO Translated_Word_6 VALUES (27, 4);
 INSERT INTO Translated_Word_6 VALUES (28, 4);
 INSERT INTO Translated_Word_6 VALUES (29, 4);
+
+INSERT INTO Documented_Saved_Transcript_7 (recording_id) VALUES (7);
+INSERT INTO Documented_Saved_Transcript_7 (recording_id) VALUES (10);
+
+INSERT INTO Documented_Saved_Transcript_1 VALUES (207, 7);
+INSERT INTO Documented_Saved_Transcript_1 VALUES (210, 10);
+
+UPDATE Documented_Saved_Transcript_7 SET transcript_id = 207 WHERE recording_id = 7;
+UPDATE Documented_Saved_Transcript_7 SET transcript_id = 210 WHERE recording_id = 10;
+
+INSERT INTO Documented_Saved_Transcript_2 VALUES (207, 5);
+INSERT INTO Documented_Saved_Transcript_2 VALUES (210, 5);
+
+INSERT INTO Documented_Saved_Transcript_3 VALUES (207, 'THANK PLEASE YES SORRY GOOD');
+INSERT INTO Documented_Saved_Transcript_3 VALUES (210, 'HELLO THANK YES GOOD PLEASE');
+
+INSERT INTO Documented_Saved_Transcript_4 VALUES (207, 5);
+INSERT INTO Documented_Saved_Transcript_4 VALUES (210, 5);
+
+INSERT INTO Documented_Saved_Transcript_5 VALUES (207, DATE '2026-01-20');
+INSERT INTO Documented_Saved_Transcript_5 VALUES (210, DATE '2026-02-15');
+
+INSERT INTO Documented_Saved_Transcript_6 VALUES (207, 'English');
+INSERT INTO Documented_Saved_Transcript_6 VALUES (210, 'English');
+
+INSERT INTO Documented_Saved_Transcript_8 VALUES (7, 5);
+INSERT INTO Documented_Saved_Transcript_8 VALUES (10, 5);
+
+INSERT INTO Documented_Saved_Transcript_9 VALUES (7, 'THANK PLEASE YES SORRY GOOD');
+INSERT INTO Documented_Saved_Transcript_9 VALUES (10, 'HELLO THANK YES GOOD PLEASE');
+
+INSERT INTO Documented_Saved_Transcript_10 VALUES (7, 5);
+INSERT INTO Documented_Saved_Transcript_10 VALUES (10, 5);
+
+INSERT INTO Documented_Saved_Transcript_11 VALUES (7, DATE '2026-01-20');
+INSERT INTO Documented_Saved_Transcript_11 VALUES (10, DATE '2026-02-15');
+
+INSERT INTO Documented_Saved_Transcript_12 VALUES (7, 'English');
+INSERT INTO Documented_Saved_Transcript_12 VALUES (10, 'English');
+
+INSERT INTO Created_Documented_Recording VALUES (7,  207, 5, 30, DATE '2026-01-20', 'hao_session_1');
+INSERT INTO Created_Documented_Recording VALUES (10, 210, 5, 24, DATE '2026-02-15', 'hao_session_2');
+
+INSERT INTO Live  VALUES (7, 'webcam://device_2');
+INSERT INTO Video VALUES (10, 200);
+
+INSERT INTO Contained_Analyzed_Frame1 VALUES ('frame_data_closed_fist',  7, 1, TIMESTAMP '2026-01-20 09:00:00.000');
+INSERT INTO Contained_Analyzed_Frame1 VALUES ('frame_data_victory_sign', 10, 1, TIMESTAMP '2026-02-15 14:00:00.000');
+
+INSERT INTO Translated_Word_1 VALUES (30, 207);
+INSERT INTO Translated_Word_1 VALUES (31, 207);
+INSERT INTO Translated_Word_1 VALUES (32, 207);
+INSERT INTO Translated_Word_1 VALUES (33, 207);
+INSERT INTO Translated_Word_1 VALUES (34, 207);
+INSERT INTO Translated_Word_1 VALUES (35, 210);
+INSERT INTO Translated_Word_1 VALUES (36, 210);
+INSERT INTO Translated_Word_1 VALUES (37, 210);
+INSERT INTO Translated_Word_1 VALUES (38, 210);
+INSERT INTO Translated_Word_1 VALUES (39, 210);
+
+INSERT INTO Translated_Word_2 VALUES (30, 102); -- def 2
+INSERT INTO Translated_Word_2 VALUES (31, 101); -- def 1
+INSERT INTO Translated_Word_2 VALUES (32, 104); -- def 4
+INSERT INTO Translated_Word_2 VALUES (33, 102); -- def 2
+INSERT INTO Translated_Word_2 VALUES (34, 104); -- def 4
+INSERT INTO Translated_Word_2 VALUES (35, 101); -- def 1
+INSERT INTO Translated_Word_2 VALUES (36, 102); -- def 2
+INSERT INTO Translated_Word_2 VALUES (37, 104); -- def 4
+INSERT INTO Translated_Word_2 VALUES (38, 104); -- def 4
+INSERT INTO Translated_Word_2 VALUES (39, 101); -- def 1
+
+INSERT INTO Translated_Word_3 VALUES (30, 5);
+INSERT INTO Translated_Word_3 VALUES (31, 6);
+INSERT INTO Translated_Word_3 VALUES (32, 3);
+INSERT INTO Translated_Word_3 VALUES (33, 5);
+INSERT INTO Translated_Word_3 VALUES (34, 4);
+INSERT INTO Translated_Word_3 VALUES (35, 5);
+INSERT INTO Translated_Word_3 VALUES (36, 5);
+INSERT INTO Translated_Word_3 VALUES (37, 3);
+INSERT INTO Translated_Word_3 VALUES (38, 4);
+INSERT INTO Translated_Word_3 VALUES (39, 6);
+
+INSERT INTO Translated_Word_4 VALUES (30, 88);
+INSERT INTO Translated_Word_4 VALUES (31, 92);
+INSERT INTO Translated_Word_4 VALUES (32, 96);
+INSERT INTO Translated_Word_4 VALUES (33, 85);
+INSERT INTO Translated_Word_4 VALUES (34, 90);
+INSERT INTO Translated_Word_4 VALUES (35, 91);
+INSERT INTO Translated_Word_4 VALUES (36, 87);
+INSERT INTO Translated_Word_4 VALUES (37, 95);
+INSERT INTO Translated_Word_4 VALUES (38, 89);
+INSERT INTO Translated_Word_4 VALUES (39, 93);
+
+INSERT INTO Translated_Word_5 VALUES (30, 'THANK');
+INSERT INTO Translated_Word_5 VALUES (31, 'PLEASE');
+INSERT INTO Translated_Word_5 VALUES (32, 'YES');
+INSERT INTO Translated_Word_5 VALUES (33, 'SORRY');
+INSERT INTO Translated_Word_5 VALUES (34, 'GOOD');
+INSERT INTO Translated_Word_5 VALUES (35, 'HELLO');
+INSERT INTO Translated_Word_5 VALUES (36, 'THANK');
+INSERT INTO Translated_Word_5 VALUES (37, 'YES');
+INSERT INTO Translated_Word_5 VALUES (38, 'GOOD');
+INSERT INTO Translated_Word_5 VALUES (39, 'PLEASE');
+
+INSERT INTO Translated_Word_6 VALUES (30, 5);
+INSERT INTO Translated_Word_6 VALUES (31, 5);
+INSERT INTO Translated_Word_6 VALUES (32, 5);
+INSERT INTO Translated_Word_6 VALUES (33, 5);
+INSERT INTO Translated_Word_6 VALUES (34, 5);
+INSERT INTO Translated_Word_6 VALUES (35, 5);
+INSERT INTO Translated_Word_6 VALUES (36, 5);
+INSERT INTO Translated_Word_6 VALUES (37, 5);
+INSERT INTO Translated_Word_6 VALUES (38, 5);
+INSERT INTO Translated_Word_6 VALUES (39, 5);
+
