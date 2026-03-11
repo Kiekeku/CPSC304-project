@@ -9,7 +9,7 @@
 - `PORT`
 
 ## Structure
-- `main.py`: app startup
+- `main.py`: app startup file
 - `routers/`: API routes
 - `services/`: DB
 - `models/schemas.py`: request models
