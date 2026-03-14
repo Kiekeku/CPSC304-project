@@ -10,3 +10,11 @@ JOIN Translated_Word_5 TW5
 JOIN Translated_Word_4 TW4 
     ON TW1.instance_id = TW4.instance_id
 WHERE TW1.transcript_id = :transcript_id;
+
+--NESTED AGGREGATION: find transcripts whose word count > the average word count of all transcripts
+SELECT transcript_id, word_count
+FROM Documented_Saved_Transcript_4
+WHERE word_count > (
+    SELECT AVG(word_count)
+    FROM Documented_Saved_Transcript_4
+);
