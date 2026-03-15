@@ -22,3 +22,9 @@ WHERE word_count > (
 --DELETE QUERY:     delete a predicted gesture handmark using the def_id
 DELETE FROM Predicted_Gesture_Handmark2
 WHERE def_id = :input_def_id;
+COMMIT;
+
+--PROJECTION: allows the user to select any number of attributes from their user profile to view
+SELECT &attributes
+FROM Calibrated_User
+WHERE user_id = :input_user_id;
