@@ -18,3 +18,7 @@ WHERE word_count > (
     SELECT AVG(word_count)
     FROM Documented_Saved_Transcript_4
 );
+
+--DELETE QUERY:     delete a predicted gesture handmark using the def_id
+DELETE FROM Predicted_Gesture_Handmark2
+WHERE def_id = :input_def_id;
