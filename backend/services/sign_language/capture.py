@@ -25,6 +25,12 @@ def get_video_info(video_path: str) -> dict:
         "duration_seconds": round(duration, 2),
     }
 
+def extract_frames(video_path: str, frame_interval: int=5) -> list:
+    """
+    read every nth frame from a video
+    note: for frame_interval = x, grab 1 frame per every x frames
+    """
+
 if __name__ == "__main__":
     info = get_video_info("test_video.mp4")
     print(info)
