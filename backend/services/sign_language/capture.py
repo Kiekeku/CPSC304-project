@@ -58,6 +58,18 @@ def extract_frames(video_path: str, frame_interval: int=5) -> list:
 
     return frames
 
+def prepare_frame(frame):
+    """
+    prepares a raw frame for easier analysis
+    - resize
+    - convert to grayscale
+    """
+
+def prepare_frames(frame: list) -> list:
+    """
+    prepares a list of frames
+    """
+
 if __name__ == "__main__":
     info = get_video_info("test_video.mp4")
     print(info)
