@@ -11,7 +11,9 @@ def prepare_frame(frame):
 
     resized = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_AREA)
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-    return gray
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    result = clahe.apply(gray)
+    return result
 
 def prepare_frames(frame: list) -> list:
     """
