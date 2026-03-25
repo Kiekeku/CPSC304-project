@@ -29,3 +29,6 @@ Thumbs.db
 
 # Windows shortcuts
 *.lnk
+
+# Testing files
+backend/test_frames_output/
