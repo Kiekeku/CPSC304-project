@@ -1,5 +1,6 @@
 
 import cv2
+import os
 
 def prepare_frame(frame):
     """
@@ -23,6 +24,11 @@ def prepare_frames(frame: list) -> list:
     print(f"Preprocessed {len(processed)} frames")
     print(f"New frame shape: {processed[0].shape}") 
     return processed
+
+def save_frames(frames: list, output_dir: str) -> None:
+    """
+    save frames as images for testing
+    """
 
 if __name__ == "__main__":
     from capture import extract_frames
