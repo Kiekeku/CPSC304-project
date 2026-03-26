@@ -15,7 +15,7 @@ def prepare_frame(frame):
     result = clahe.apply(gray)
     return result
 
-def prepare_frames(frame: list) -> list:
+def prepare_frames(frames: list) -> list:
     """
     prepares a list of frames
     """

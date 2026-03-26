@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from db import close_pool, init_pool
 from routers.demotable_router import router as demotable_router
 from routers.ml_router import router as ml_router
+from routers.translator_router import router as translator_router
 
 load_dotenv()
 
@@ -36,7 +37,7 @@ def on_shutdown() -> None:
 
 app.include_router(demotable_router)
 app.include_router(ml_router)
-
+app.include_router(translator_router)
 
 @app.get("/", include_in_schema=False)
 def serve_frontend_root():

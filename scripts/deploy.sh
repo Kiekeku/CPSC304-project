@@ -83,7 +83,7 @@ echo "[deploy] Starting backend on port $PORT..."
     echo "[deploy][warn] If you are off-campus/WSL, create a DB tunnel first (e.g. scripts/mac/db-tunnel.sh)."
   fi
 
-  nohup "$VENV_PYTHON" -m uvicorn main:app --host 0.0.0.0 --port "$PORT" >"$LOG_FILE" 2>&1 &
+  OPENBLAS_NUM_THREADS=1 nohup "$VENV_PYTHON" -m uvicorn main:app --host 0.0.0.0 --port "$PORT" >"$LOG_FILE" 2>&1 &
   echo $! > "$PID_FILE"
 )
 

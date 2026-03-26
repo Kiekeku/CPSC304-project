@@ -32,3 +32,4 @@ Thumbs.db
 
 # Testing files
 backend/test_frames_output/
+backend/uploads/
