@@ -12,20 +12,19 @@ def save_recording_transcript(user_id, recording_name, fps, duration, transcript
 
     with get_connection() as conn:
         cur = conn.cursor()
-
+        
         # get new ids
         cur.execute("SELECT NVL(MAX(recording_id), 0) + 1 FROM Created_Documented_Recording")
         rec_id = cur.fetchone()[0]
-
         cur.execute("SELECT NVL(MAX(transcript_id), 0) + 1 FROM Documented_Saved_Transcript_1")
         tr_id = cur.fetchone()[0]
 
-        cur.execute("INSERT INTO Created_Documented_Recording VALUES (:1, :2, :3, :4, :5, :6)",
-                    [rec_id, tr_id, user_id, fps, today, recording_name])
-
-        cur.execute("INSERT INTO Documented_Saved_Transcript_7 VALUES (:1, :2)", [rec_id, tr_id])
+        cur.execute("INSERT INTO Documented_Saved_Transcript_7 (recording_id) VALUES (:1)", [rec_id])
 
         cur.execute("INSERT INTO Documented_Saved_Transcript_1 VALUES (:1, :2)", [tr_id, rec_id])
+
+        cur.execute("INSERT INTO Created_Documented_Recording VALUES (:1, :2, :3, :4, :5, :6)",
+                    [rec_id, tr_id, user_id, fps, today, recording_name])
 
         cur.execute("INSERT INTO Documented_Saved_Transcript_2 VALUES (:1, :2)", [tr_id, user_id])
 
