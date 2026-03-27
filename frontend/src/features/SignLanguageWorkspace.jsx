@@ -37,22 +37,22 @@ export default function SignLanguageWorkspace() {
         <SectionCard
             title="Sign Language Analyzer"
             description="Extracts hand landmarks from uploaded videos using MediaPipe and OpenCV"
-            >
-                <form onSubmit={handleAnalyze}>
-                    <label>
-                        Video file:
-                        <input
-                            id="video-input"
-                            type="file"
-                            accept="video/*"
-                            onChange={(e) => setFile(e.target.files[0])}
-                        />
-                    </label>
-                    <button type="submit" id="analyze-sl-btn" disabled={loading}>
-                        {loading ? 'Analyzing...' : 'Analyze'}
-                    </button>
-                </form>
-                {resultMessage && <pre className="ml-output">{resultMessage}</pre>}
-            </SectionCard>
+        >
+            <form onSubmit={handleAnalyze}>
+                <label>
+                    Video file:
+                    <input
+                        id="sl-video-input"
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => setFile(e.target.files[0])}
+                    />
+                </label>
+                <button type="submit" id="analyze-sl-btn" disabled={loading}>
+                    {loading ? 'Analyzing...' : 'Analyze'}
+                </button>
+            </form>
+            {resultMessage && <pre className="ml-output">{resultMessage}</pre>}
+        </SectionCard>
     );
 }
