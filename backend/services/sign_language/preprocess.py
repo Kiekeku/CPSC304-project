@@ -3,9 +3,6 @@ import cv2
 import os
 import mediapipe as mp
 
-mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
-
 def prepare_frame(frame, hands):
     """
     prepares a raw frame for easier analysis
@@ -31,13 +28,14 @@ def prepare_frames(frames: list) -> list:
     prepares a list of frames
     """
     processed = []
+    mp_hands = mp.solutions.hands
     with mp_hands.Hands(
         static_image_mode=True, 
         max_num_hands=2, 
         min_detection_confidence=0.5 # need to test detection conf
     ) as hands:
         for frame in frames:
-            processed.append(prepare_frame(frame))
+            processed.append(prepare_frame(frame, hands))
 
     print(f"Preprocessed {len(processed)} frames")
     print(f"New frame shape: {processed[0]["frame"].shape}") 
@@ -48,6 +46,8 @@ def save_frames(frames: list, output_dir: str) -> None:
     save frames as images for testing
     """
     os.makedirs(output_dir, exist_ok=True)
+    mp_hands = mp.solutions.hands
+    mp_drawing = mp.solutions.drawing_utils
 
     for i, data in enumerate(frames):
         frame = data["frame"]
