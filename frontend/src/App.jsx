@@ -9,6 +9,7 @@ export default function App() {
 
       <DemotableWorkspace />
       <MlWorkspace />
+      <signLanguageApi />
     </main>
   );
 }
