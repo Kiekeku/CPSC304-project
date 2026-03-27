@@ -33,6 +33,12 @@ async def analyze_video(file: UploadFile = File(...)):
         # TODO run ML model on processed frames (justin's part), rn keep as temp "unknown" to test db
         transcript_text = "unknown"
 
+        # assign a unique id to every video
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        stem = Path(file.filename).stem
+        suffix_ext = Path(file.filename).suffix
+        unique_name = f"{stem}_{timestamp}{suffix_ext}"
+
         # hardcoded user_id=1 until login is ready
         ids = save_recording_transcript(
             user_id=1,
