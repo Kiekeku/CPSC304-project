@@ -50,5 +50,8 @@ def get_connection():
     conn = _POOL.acquire()
     try:
         yield conn
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         _POOL.release(conn)
