@@ -1,4 +1,6 @@
 import shutil
+from datetime import datetime
+import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -42,7 +44,7 @@ async def analyze_video(file: UploadFile = File(...)):
         # hardcoded user_id=1 until login is ready
         ids = save_recording_transcript(
             user_id=1,
-            recording_name=file.filename,
+            recording_name=unique_name,
             fps=info["fps"],
             duration=info["duration_seconds"],
             transcript_text=transcript_text,
