@@ -4,3 +4,4 @@ oracledb==2.5.1
 python-dotenv==1.1.1
 opencv-python-headless
 python-multipart
+mediapipe

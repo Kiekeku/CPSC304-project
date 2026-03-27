@@ -46,7 +46,8 @@ def extract_frames(video_path: str, frame_interval: int=5) -> list:
             break
 
         if frame_count % frame_interval == 0:
-            frames.append(frame)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frames.append(frame_rgb)
 
         frame_count += 1
 
