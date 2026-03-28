@@ -11,6 +11,14 @@ JOIN Translated_Word_4 TW4
     ON TW1.instance_id = TW4.instance_id
 WHERE TW1.transcript_id = :transcript_id;
 
+--UPDATE QUERY: changes the name and email of the tuple that has user_id=1 
+UPDATE Calibrated_User
+SET 
+    name = 'Unlucky Bin',
+    email = 'unlucky@example.com'
+WHERE 
+    user_id = 1;
+
 --NESTED AGGREGATION: find transcripts whose word count > the average word count of all transcripts
 SELECT transcript_id, word_count
 FROM Documented_Saved_Transcript_4
