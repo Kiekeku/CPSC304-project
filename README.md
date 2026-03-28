@@ -61,3 +61,4 @@ Update `.env` values:
 - `ORACLE_HOST`, `ORACLE_PORT`, `ORACLE_DBNAME`
 
 testing
+test

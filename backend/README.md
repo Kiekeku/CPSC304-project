@@ -14,3 +14,5 @@
 - `services/`: DB
 - `models/schemas.py`: request models
 - `sql/`: schema and seed SQL files
+
+machine learning service merged with sign language service
