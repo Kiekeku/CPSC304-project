@@ -36,7 +36,7 @@ async def analyze_video(file: UploadFile = File(...)):
         transcript_text = "unknown"
 
         # assign a unique id to every video
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         stem = Path(file.filename).stem
         suffix_ext = Path(file.filename).suffix
         unique_name = f"{stem}_{timestamp}{suffix_ext}"

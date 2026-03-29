@@ -2,6 +2,19 @@ from datetime import date
 from db import get_connection
 
 
+def _next_id(cursor, table_names, column_name):
+    """
+    Return the next numeric id across a set of tables that should share the same key space.
+    This prevents collisions when one table contains a newer id than another.
+    """
+    select_parts = [
+        f"SELECT NVL(MAX({column_name}), 0) AS max_id FROM {table_name}" for table_name in table_names
+    ]
+    union_query = " UNION ALL ".join(select_parts)
+    cursor.execute(f"SELECT MAX(max_id) + 1 FROM ({union_query})")
+    return cursor.fetchone()[0]
+
+
 def save_recording_transcript(user_id, recording_name, fps, duration, transcript_text):
     """
     saves recording + recording transcript to db, returns recording_id transcript_id
@@ -13,11 +26,34 @@ def save_recording_transcript(user_id, recording_name, fps, duration, transcript
     with get_connection() as conn:
         cur = conn.cursor()
 
-        # get new ids
-        cur.execute("SELECT NVL(MAX(recording_id), 0) + 1 FROM Created_Documented_Recording")
-        rec_id = cur.fetchone()[0]
-        cur.execute("SELECT NVL(MAX(transcript_id), 0) + 1 FROM Documented_Saved_Transcript_1")
-        tr_id = cur.fetchone()[0]
+        # Keep ids aligned across the decomposed transcript/recording tables.
+        rec_id = _next_id(
+            cur,
+            [
+                "Documented_Saved_Transcript_7",
+                "Documented_Saved_Transcript_8",
+                "Documented_Saved_Transcript_9",
+                "Documented_Saved_Transcript_10",
+                "Documented_Saved_Transcript_11",
+                "Documented_Saved_Transcript_12",
+                "Created_Documented_Recording",
+                "Video",
+            ],
+            "recording_id",
+        )
+        tr_id = _next_id(
+            cur,
+            [
+                "Documented_Saved_Transcript_1",
+                "Documented_Saved_Transcript_2",
+                "Documented_Saved_Transcript_3",
+                "Documented_Saved_Transcript_4",
+                "Documented_Saved_Transcript_5",
+                "Documented_Saved_Transcript_6",
+                "Created_Documented_Recording",
+            ],
+            "transcript_id",
+        )
 
         language = "English"
 
