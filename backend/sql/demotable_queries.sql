@@ -36,3 +36,11 @@ COMMIT;
 SELECT &attributes
 FROM Calibrated_User
 WHERE user_id = :input_user_id;
+
+--HAVING: checks if the selected user has a name documented
+SELECT user_id
+FROM Calibrated_User
+WHERE user_id = :input_user_id
+GROUP BY user_id
+HAVING COUNT(name) > 0;
+
