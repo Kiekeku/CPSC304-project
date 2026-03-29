@@ -9,3 +9,11 @@ export async function analyzeVideo(file) {
     body: formData,
   });
 }
+
+export async function listVideoAnalyses() {
+  return requestJson('/sign-language/analyses');
+}
+
+export async function getVideoAnalysis(analysisId) {
+  return requestJson(`/sign-language/analyses/${analysisId}`);
+}
