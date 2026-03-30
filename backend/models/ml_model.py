@@ -73,3 +73,58 @@ def get_dataset_detail(dataset_id: str) -> dict:
         "trained_at": row[3].isoformat() if row[3] else None,
         "label_details": label_details,
     }
+
+    
+def add_gesture_label(dataset_id: str, label: str) -> dict:
+    with get_connection() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT gesture_labels FROM Gesture_Model WHERE dataset_id = :1",
+            [dataset_id],
+        )
+        row = cur.fetchone()
+        if not row:
+            raise FileNotFoundError(f"Dataset '{dataset_id}' not found.")
+        labels = json.loads(row[0]) if row[0] else []
+        if label in labels:
+            raise ValueError(f"Label '{label}' already exists.")
+        labels.append(label)
+        cur.execute(
+            "UPDATE Gesture_Model SET gesture_labels = :1 WHERE dataset_id = :2",
+            [json.dumps(labels), dataset_id],
+        )
+        conn.commit()
+    return {"dataset_id": dataset_id, "gestures": labels}
+
+
+def _landmarks_to_vector(landmarks: list[dict]) -> list[float]:
+    vec = []
+    for lm in sorted(landmarks, key=lambda l: l["index"]):
+        vec.extend([lm["x"], lm["y"], lm["z"]])
+    return vec
+
+
+def ingest_video(video_path: str, dataset_id: str, label: str) -> int:
+    frames = extract_frames(video_path, frame_interval=3)
+    processed = prepare_frames(frames)
+
+    vectors = []
+    for frame_data in processed:
+        for hand in frame_data.get("hands", []):
+            vec = _landmarks_to_vector(hand["landmarks"])
+            if len(vec) == 63:
+                vectors.append(vec)
+
+    if not vectors:
+        return 0
+
+    with get_connection() as conn:
+        cur = conn.cursor()
+        cur.executemany(
+            "INSERT INTO Gesture_Sample (dataset_id, gesture_label, landmarks)"
+            " VALUES (:1, :2, :3)",
+            [[dataset_id, label, json.dumps(v)] for v in vectors],
+        )
+        conn.commit()
+
+    return len(vectors)
