@@ -205,55 +205,91 @@ def ingest_video(video_path: str, dataset_id: int, label: str) -> int:
     return len(vectors)
 
     
-def train_model(dataset_id: str) -> dict:
+def train_model(dataset_id: int) -> dict:
     from sklearn.neighbors import KNeighborsClassifier
     from sklearn.model_selection import cross_val_score
 
-    with get_connection() as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT gesture_label, landmarks FROM Gesture_Sample WHERE dataset_id = :1",
-            [dataset_id],
-        )
-        rows = cur.fetchall()
+    data_dir = GESTURE_DATA_DIR / str(dataset_id)
+    X, y = [], []
 
-    if not rows:
+    for sample_file in data_dir.glob("*.json"):
+        label = sample_file.stem
+        vectors = json.loads(sample_file.read_text())
+        X.extend(vectors)
+        y.extend([label] * len(vectors))
+
+    if not X:
         raise ValueError("No training samples found. Upload videos first.")
-
-    X = np.array([json.loads(r[1]) for r in rows], dtype=float)
-    y = [r[0] for r in rows]
 
     unique_labels = sorted(set(y))
     if len(unique_labels) < 2:
         raise ValueError("Need at least 2 gesture labels with samples to train.")
 
+    X = np.array(X, dtype=float)
     k = min(5, len(X))
     clf = KNeighborsClassifier(n_neighbors=k, metric="euclidean", weights="distance")
     clf.fit(X, y)
 
-    accuracy = None
+    accuracy_pct = 0
+
     if len(X) >= 10:
         scores = cross_val_score(clf, X, y, cv=min(5, len(X)))
-        accuracy = round(float(scores.mean()), 4)
+        accuracy_pct = int(round(float(scores.mean()) * 100))
 
-    model_blob = pickle.dumps(clf)
+    pkl_path = data_dir / "model.pkl"
+    pkl_path.write_bytes(pickle.dumps(clf))
 
     with get_connection() as conn:
         cur = conn.cursor()
-        blob_var = conn.cursor().var(oracledb.BLOB)
-        blob_var.setvalue(0, model_blob)
+
         cur.execute(
-            "UPDATE Gesture_Model SET model_pickle = :1, trained_at = :2"
-            " WHERE dataset_id = :3",
-            [model_blob, datetime.utcnow(), dataset_id],
+            "UPDATE Trained_Machine_Learning_Model"
+            " SET accuracy = :1, hyperparameter = :2"
+            " WHERE model_id = :3",
+            [accuracy_pct, k, dataset_id],
         )
+        cur.execute(
+            "SELECT handmark_id FROM Predicted_Gesture_Handmark1"
+            " WHERE model_id = :1 AND ROWNUM = 1",
+            [dataset_id],
+        )
+
+        first_hm = cur.fetchone()
+
+        if first_hm:
+            cur.execute(
+                "UPDATE Trained_Machine_Learning_Model SET handmark_id = :1"
+                " WHERE model_id = :2",
+                [first_hm[0], dataset_id],
+            )
+
+        for label in unique_labels:
+            label_vecs = np.array(
+                [v for v, lbl in zip(X, y) if lbl == label], dtype=float
+            )
+
+            mean = label_vecs.mean(axis=0)
+            mean_x = ",".join(f"{v:.3f}" for v in mean[0::3])
+            mean_y = ",".join(f"{v:.3f}" for v in mean[1::3])
+
+            cur.execute(
+                """UPDATE Predicted_Gesture_Handmark2 SET x_position = :1, y_position = :2
+                   WHERE def_id = (
+                       SELECT cd.def_id FROM Calibrated_Definition cd
+                       JOIN Predicted_Gesture_Handmark1 ph ON ph.def_id = cd.def_id
+                       WHERE ph.model_id = :3 AND cd.gesture = :4
+                   )""",
+                [mean_x[:255], mean_y[:255], dataset_id, label],
+            )
+
         conn.commit()
 
     return {
         "dataset_id": dataset_id,
         "labels": unique_labels,
         "sample_count": len(X),
-        "accuracy_cv": accuracy,
+        "accuracy_pct": accuracy_pct,
+        "k": k,
     }
 
 def recognize_gesture(dataset_id: str, landmarks: list[dict]) -> dict:
