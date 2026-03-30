@@ -1,4 +1,3 @@
-from fastapi import APIRouter
 import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -43,7 +42,7 @@ def list_datasets() -> dict:
 
 
 @router.get("/datasets/{dataset_id}")
-def get_dataset(dataset_id: str) -> dict:
+def get_dataset(dataset_id: int) -> dict:
     try:
         return svc_get_dataset(dataset_id)
     except FileNotFoundError as exc:
@@ -51,7 +50,7 @@ def get_dataset(dataset_id: str) -> dict:
 
 
 @router.post("/datasets/{dataset_id}/gestures", status_code=201)
-def add_gesture(dataset_id: str, body: AddGestureLabelRequest) -> dict:
+def add_gesture(dataset_id: int, body: AddGestureLabelRequest) -> dict:
     try:
         return svc_add_label(dataset_id, body.label)
     except FileNotFoundError as exc:
@@ -62,7 +61,7 @@ def add_gesture(dataset_id: str, body: AddGestureLabelRequest) -> dict:
 
 @router.post("/datasets/{dataset_id}/gestures/{label}/videos", status_code=201)
 async def upload_gesture_video(
-    dataset_id: str,
+    dataset_id: int,
     label: str,
     file: UploadFile = File(...),
 ) -> dict:
@@ -86,8 +85,9 @@ async def upload_gesture_video(
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 
+
 @router.post("/datasets/{dataset_id}/train")
-def train_dataset(dataset_id: str) -> dict:
+def train_dataset(dataset_id: int) -> dict:
     try:
         result = svc_train(dataset_id)
         return {"message": "Model trained successfully.", **result}
@@ -100,11 +100,10 @@ def train_dataset(dataset_id: str) -> dict:
 
 
 @router.post("/datasets/{dataset_id}/recognize")
-def recognize(dataset_id: str, body: RecognizeRequest) -> dict:
+def recognize(dataset_id: int, body: RecognizeRequest) -> dict:
     try:
         return svc_recognize(dataset_id, body.landmarks)
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}") from exc
-
