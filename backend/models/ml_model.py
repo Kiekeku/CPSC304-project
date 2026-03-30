@@ -292,24 +292,19 @@ def train_model(dataset_id: int) -> dict:
         "k": k,
     }
 
-def recognize_gesture(dataset_id: str, landmarks: list[dict]) -> dict:
-    with get_connection() as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT model_pickle FROM Gesture_Model WHERE dataset_id = :1",
-            [dataset_id],
+def recognize_gesture(dataset_id: int, landmarks: list[dict]) -> dict:
+    pkl_path = GESTURE_DATA_DIR / str(dataset_id) / "model.pkl"
+
+    if not pkl_path.exists():
+        raise ValueError(
+            f"No trained model for dataset {dataset_id}."
         )
-        row = cur.fetchone()
 
-    if not row or row[0] is None:
-        raise ValueError("No trained model found for this dataset.")
-
-    blob = row[0].read() if hasattr(row[0], "read") else row[0]
-    clf = pickle.loads(blob)
-
+    clf = pickle.loads(pkl_path.read_bytes())
     vec = _landmarks_to_vector(landmarks)
+
     if len(vec) != 63:
-        raise ValueError("Expected 21 landmarks (63 values).")
+        raise ValueError("Expected 21 landmarks.")
 
     X = np.array([vec])
     label = clf.predict(X)[0]
