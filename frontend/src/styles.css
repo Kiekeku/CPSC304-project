@@ -4,10 +4,8 @@ body {
   max-width: 1100px;
   margin: auto;
   line-height: 1.6;
-  background:
-    radial-gradient(circle at top left, rgba(227, 233, 255, 0.9), transparent 26%),
-    linear-gradient(180deg, #f8f4eb 0%, #fbfaf6 100%);
-  color: #1f2430;
+  background: #fcfcfc;
+  color: #111;
 }
 
 .container {
@@ -30,11 +28,10 @@ body {
 .section-card {
   margin-bottom: 28px;
   padding: 24px;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(30, 40, 60, 0.08);
+  background: #fff;
+  border: 1px solid #ddd;
   border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(33, 42, 62, 0.08);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
 }
 
 .section-card h2 {
@@ -45,7 +42,7 @@ body {
 
 .section-card > p {
   margin-top: 0;
-  color: #475467;
+  color: #333;
 }
 
 hr {
@@ -81,7 +78,7 @@ tr:hover {
 }
 
 button {
-  background: linear-gradient(135deg, #19253a 0%, #30558f 100%);
+  background: #111;
   color: #fff;
   padding: 10px 20px;
   font-size: 16px;
@@ -91,16 +88,16 @@ button {
   transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.3s;
   outline: none;
   margin-top: 6px;
-  box-shadow: 0 10px 24px rgba(31, 36, 48, 0.18);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 button:hover {
-  background-color: rgb(22, 87, 207);
+  background-color: #000;
   transform: translateY(-1px);
 }
 
 button:active {
-  background-color: rgb(12, 67, 187);
+  background-color: #000;
 }
 
 button:disabled {
@@ -124,8 +121,8 @@ textarea {
 }
 
 .button-secondary {
-  background: #eef2f8;
-  color: #1f2430;
+  background: #f2f2f2;
+  color: #111;
   box-shadow: none;
 }
 
@@ -215,7 +212,7 @@ textarea::placeholder {
 }
 
 .supporting-text {
-  color: #667085;
+  color: #444;
   margin: 8px 0 0;
 }
 
@@ -237,15 +234,15 @@ textarea::placeholder {
 }
 
 .status-success {
-  background: #eaf8ef;
-  color: #14532d;
-  border: 1px solid #b7e3c3;
+  background: #f7f7f7;
+  color: #111;
+  border: 1px solid #d8d8d8;
 }
 
 .status-error {
-  background: #fdf0f0;
-  color: #991b1b;
-  border: 1px solid #efc0c0;
+  background: #fafafa;
+  color: #111;
+  border: 1px solid #d8d8d8;
 }
 
 .video-preview-shell {
@@ -402,6 +399,197 @@ textarea::placeholder {
   }
 
   .frame-review-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gesture-studio {
+  display: grid;
+  gap: 22px;
+}
+
+.gesture-studio-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #fff;
+  color: #111;
+  border: 1px solid #ddd;
+}
+
+.gesture-studio-hero h3,
+.gesture-panel h3,
+.gesture-empty-state h3 {
+  margin: 0 0 10px;
+}
+
+.gesture-studio-hero p,
+.gesture-panel p,
+.gesture-empty-state p,
+.gesture-storage-item p {
+  margin: 0;
+}
+
+.gesture-studio-pills {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  flex-wrap: wrap;
+  align-content: start;
+}
+
+.gesture-studio-pills span,
+.gesture-storage-badges span {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+}
+
+.gesture-studio-pills span {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  color: #111;
+}
+
+.gesture-studio-grid,
+.gesture-workbench,
+.gesture-storage-board,
+.gesture-metrics {
+  display: grid;
+  gap: 18px;
+}
+
+.gesture-studio-grid,
+.gesture-storage-board {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gesture-workbench {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.gesture-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.gesture-panel,
+.gesture-metric-card,
+.gesture-empty-state {
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid #ddd;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.gesture-panel-accent {
+  background: #fafafa;
+}
+
+.gesture-panel-dark {
+  color: #111;
+  background: #f6f6f6;
+}
+
+.gesture-panel-dark .eyebrow,
+.gesture-panel-dark p {
+  color: #333;
+}
+
+.gesture-metric-card {
+  display: grid;
+  gap: 6px;
+}
+
+.gesture-metric-card strong,
+.gesture-target-facts strong {
+  font-size: 1.15rem;
+}
+
+.gesture-metric-card small {
+  color: #444;
+}
+
+.gesture-storage-panel {
+  min-height: 100%;
+}
+
+.gesture-storage-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.gesture-storage-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+}
+
+.gesture-storage-item-active {
+  background: #f2f2f2;
+  border-color: #bbb;
+}
+
+.gesture-storage-item p,
+.artifact-path {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #222;
+  word-break: break-word;
+}
+
+.gesture-storage-badges {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.gesture-storage-badges span {
+  background: #f1f1f1;
+  color: #111;
+}
+
+.artifact-path {
+  margin: 12px 0 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+}
+
+.gesture-target-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gesture-empty-state {
+  text-align: center;
+  background: #fff;
+}
+
+@media (max-width: 900px) {
+  .gesture-studio-hero,
+  .gesture-storage-item {
+    display: grid;
+  }
+
+  .gesture-studio-grid,
+  .gesture-workbench,
+  .gesture-storage-board,
+  .gesture-metrics,
+  .gesture-target-facts {
     grid-template-columns: 1fr;
   }
 }

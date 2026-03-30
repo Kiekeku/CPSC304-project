@@ -14,6 +14,11 @@ GESTURE_DATA_DIR.mkdir(exist_ok=True)
 
 DEFAULT_USER_ID = 1
 
+
+def _artifact_ref(*parts: str) -> str:
+    return "/".join(parts)[:255]
+
+
 def _next_id(cursor, tables, column):
     parts = [f"SELECT NVL(MAX({column}), 0) AS m FROM {t}" for t in tables]
     cursor.execute(f"SELECT MAX(m) + 1 FROM ({' UNION ALL '.join(parts)})")
@@ -269,8 +274,16 @@ def train_model(dataset_id: int) -> dict:
             )
 
             mean = label_vecs.mean(axis=0)
-            mean_x = ",".join(f"{v:.3f}" for v in mean[0::3])
-            mean_y = ",".join(f"{v:.3f}" for v in mean[1::3])
+            summary_payload = {
+                "label": label,
+                "sample_count": int(len(label_vecs)),
+                "mean_landmarks": mean.tolist(),
+            }
+            summary_path = data_dir / f"{label}.summary.json"
+            summary_path.write_text(json.dumps(summary_payload))
+
+            sample_ref = _artifact_ref("gesture_data", str(dataset_id), f"{label}.json")
+            summary_ref = _artifact_ref("gesture_data", str(dataset_id), f"{label}.summary.json")
 
             cur.execute(
                 """UPDATE Predicted_Gesture_Handmark2 SET x_position = :1, y_position = :2
@@ -279,7 +292,7 @@ def train_model(dataset_id: int) -> dict:
                        JOIN Predicted_Gesture_Handmark1 ph ON ph.def_id = cd.def_id
                        WHERE ph.model_id = :3 AND cd.gesture = :4
                    )""",
-                [mean_x[:255], mean_y[:255], dataset_id, label],
+                [sample_ref, summary_ref, dataset_id, label],
             )
 
         conn.commit()
