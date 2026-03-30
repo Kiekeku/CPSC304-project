@@ -1,76 +1,112 @@
 import json
 import pickle
-import uuid
 from datetime import datetime
+from pathlib import Path
 
-import cv2
 import numpy as np
-import oracledb
 
 from db import get_connection
-from services.sign_language.preprocess import prepare_frames
 from services.sign_language.capture import extract_frames
+from services.sign_language.preprocess import prepare_frames
+
+GESTURE_DATA_DIR = Path(__file__).resolve().parent.parent / "gesture_data"
+GESTURE_DATA_DIR.mkdir(exist_ok=True)
+
+DEFAULT_USER_ID = 1
+
+def _next_id(cursor, tables, column):
+    parts = [f"SELECT NVL(MAX({column}), 0) AS m FROM {t}" for t in tables]
+    cursor.execute(f"SELECT MAX(m) + 1 FROM ({' UNION ALL '.join(parts)})")
+    return cursor.fetchone()[0] or 1
+
 
 def create_dataset(name: str) -> dict:
-    dataset_id = str(uuid.uuid4())[:8]
-    now = datetime.utcnow()
     with get_connection() as conn:
         cur = conn.cursor()
+        model_id = _next_id(cur, ["Trained_Machine_Learning_Model"], "model_id")
+        
         cur.execute(
-            """INSERT INTO Gesture_Model (dataset_id, dataset_name, gesture_labels, created_at)
-               VALUES (:1, :2, :3, :4)""",
-            [dataset_id, name, json.dumps([]), now],
+            "INSERT INTO Trained_Machine_Learning_Model"
+            " (model_id, accuracy, hyperparameter, model_type)"
+            " VALUES (:1, :2, :3, :4)",
+            [model_id, 0, 5, name],
         )
+
         conn.commit()
-    return {"dataset_id": dataset_id, "name": name, "gestures": [], "trained": False}
+
+    (GESTURE_DATA_DIR / str(model_id)).mkdir(exist_ok=True)
+
+    return {"dataset_id": model_id, "name": name, "gestures": [], "trained": False}
+
 
 def list_datasets() -> list[dict]:
     with get_connection() as conn:
         cur = conn.cursor()
+
         cur.execute(
-            "SELECT dataset_id, dataset_name, gesture_labels, trained_at FROM Gesture_Model"
-            " ORDER BY created_at ASC"
+            "SELECT model_id, model_type, accuracy, hyperparameter, handmark_id"
+            " FROM Trained_Machine_Learning_Model ORDER BY model_id"
         )
+
         rows = cur.fetchall()
     return [
         {
             "dataset_id": r[0],
             "name": r[1],
-            "gestures": json.loads(r[2]) if r[2] else [],
-            "trained": r[3] is not None,
+            "accuracy": r[2],
+            "k": r[3],
+            "trained": r[4] is not None,
         }
         for r in rows
     ]
 
-def get_dataset_detail(dataset_id: str) -> dict:
+
+def get_dataset_detail(dataset_id: int) -> dict:
     with get_connection() as conn:
         cur = conn.cursor()
+
         cur.execute(
-            "SELECT dataset_id, dataset_name, gesture_labels, trained_at"
-            " FROM Gesture_Model WHERE dataset_id = :1",
+            "SELECT model_id, model_type, accuracy, hyperparameter, handmark_id"
+            " FROM Trained_Machine_Learning_Model WHERE model_id = :1",
             [dataset_id],
         )
+
         row = cur.fetchone()
+
         if not row:
-            raise FileNotFoundError(f"Dataset '{dataset_id}' not found.")
+            raise FileNotFoundError(f"Dataset {dataset_id} not found.")
 
-        labels = json.loads(row[2]) if row[2] else []
+        cur.execute(
+            """SELECT cd.gesture, cd.def_id, ph2.number_of_frames
+               FROM Calibrated_Definition cd
+               JOIN Predicted_Gesture_Handmark1 ph1 ON ph1.def_id = cd.def_id
+               JOIN Predicted_Gesture_Handmark2 ph2 ON ph2.def_id = cd.def_id
+               WHERE ph1.model_id = :1""",
+            [dataset_id],
+        )
+        label_rows = cur.fetchall()
 
-        label_details = []
-        for label in labels:
-            cur.execute(
-                "SELECT COUNT(*) FROM Gesture_Sample WHERE dataset_id = :1 AND gesture_label = :2",
-                [dataset_id, label],
-            )
-            count = cur.fetchone()[0]
-            label_details.append({"label": label, "sample_count": count})
+    label_details = []
+    data_dir = GESTURE_DATA_DIR / str(dataset_id)
+
+    for label, def_id, db_frame_count in label_rows:
+        sample_file = data_dir / f"{label}.json"
+
+        if sample_file.exists():
+            samples = json.loads(sample_file.read_text())
+            sample_count = len(samples)
+        else:
+            sample_count = 0
+
+        label_details.append({"label": label, "def_id": def_id, "sample_count": sample_count})
 
     return {
         "dataset_id": row[0],
         "name": row[1],
-        "gestures": labels,
-        "trained": row[3] is not None,
-        "trained_at": row[3].isoformat() if row[3] else None,
+        "accuracy": row[2],
+        "k": row[3],
+        "trained": row[4] is not None,
+        "gestures": [l["label"] for l in label_details],
         "label_details": label_details,
     }
 
