@@ -111,26 +111,54 @@ def get_dataset_detail(dataset_id: int) -> dict:
     }
 
     
-def add_gesture_label(dataset_id: str, label: str) -> dict:
+def add_gesture_label(dataset_id: int, label: str) -> dict:
     with get_connection() as conn:
         cur = conn.cursor()
+
         cur.execute(
-            "SELECT gesture_labels FROM Gesture_Model WHERE dataset_id = :1",
+            "SELECT model_id FROM Trained_Machine_Learning_Model WHERE model_id = :1",
             [dataset_id],
         )
-        row = cur.fetchone()
-        if not row:
-            raise FileNotFoundError(f"Dataset '{dataset_id}' not found.")
-        labels = json.loads(row[0]) if row[0] else []
-        if label in labels:
-            raise ValueError(f"Label '{label}' already exists.")
-        labels.append(label)
+        if not cur.fetchone():
+            raise FileNotFoundError(f"Dataset {dataset_id} not found.")
+
         cur.execute(
-            "UPDATE Gesture_Model SET gesture_labels = :1 WHERE dataset_id = :2",
-            [json.dumps(labels), dataset_id],
+            """SELECT cd.def_id FROM Calibrated_Definition cd
+               JOIN Predicted_Gesture_Handmark1 ph1 ON ph1.def_id = cd.def_id
+               WHERE ph1.model_id = :1 AND cd.gesture = :2""",
+            [dataset_id, label],
         )
+        if cur.fetchone():
+            raise ValueError(f"Label '{label}' already exists in this dataset.")
+
+        def_id = _next_id(
+            cur,
+            ["Calibrated_Definition", "Predicted_Gesture_Handmark2"],
+            "def_id",
+        )
+        handmark_id = _next_id(cur, ["Predicted_Gesture_Handmark1"], "handmark_id")
+
+        cur.execute(
+            "INSERT INTO Predicted_Gesture_Handmark2"
+            " (def_id, number_of_frames, x_position, y_position)"
+            " VALUES (:1, :2, :3, :4)",
+            [def_id, 0, str(def_id), "0.0"],
+        )
+        cur.execute(
+            "INSERT INTO Calibrated_Definition"
+            " (def_id, user_id, gesture, def_name, description)"
+            " VALUES (:1, :2, :3, :4, :5)",
+            [def_id, DEFAULT_USER_ID, label, label, f"dataset:{dataset_id}"],
+        )
+        cur.execute(
+            "INSERT INTO Predicted_Gesture_Handmark1 (handmark_id, def_id, model_id)"
+            " VALUES (:1, :2, :3)",
+            [handmark_id, def_id, dataset_id],
+        )
+
         conn.commit()
-    return {"dataset_id": dataset_id, "gestures": labels}
+
+    return {"dataset_id": dataset_id, "label": label, "def_id": def_id}
 
 
 def _landmarks_to_vector(landmarks: list[dict]) -> list[float]:
