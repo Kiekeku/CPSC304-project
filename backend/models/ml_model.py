@@ -168,7 +168,8 @@ def _landmarks_to_vector(landmarks: list[dict]) -> list[float]:
     return vec
 
 
-def ingest_video(video_path: str, dataset_id: str, label: str) -> int:
+
+def ingest_video(video_path: str, dataset_id: int, label: str) -> int:
     frames = extract_frames(video_path, frame_interval=3)
     processed = prepare_frames(frames)
 
@@ -176,18 +177,28 @@ def ingest_video(video_path: str, dataset_id: str, label: str) -> int:
     for frame_data in processed:
         for hand in frame_data.get("hands", []):
             vec = _landmarks_to_vector(hand["landmarks"])
+
             if len(vec) == 63:
                 vectors.append(vec)
 
     if not vectors:
         return 0
 
+    sample_file = GESTURE_DATA_DIR / str(dataset_id) / f"{label}.json"
+    existing = json.loads(sample_file.read_text()) if sample_file.exists() else []
+    sample_file.write_text(json.dumps(existing + vectors))
+
+    total = len(existing) + len(vectors)
     with get_connection() as conn:
         cur = conn.cursor()
-        cur.executemany(
-            "INSERT INTO Gesture_Sample (dataset_id, gesture_label, landmarks)"
-            " VALUES (:1, :2, :3)",
-            [[dataset_id, label, json.dumps(v)] for v in vectors],
+        cur.execute(
+            """UPDATE Predicted_Gesture_Handmark2 SET number_of_frames = :1
+               WHERE def_id = (
+                   SELECT cd.def_id FROM Calibrated_Definition cd
+                   JOIN Predicted_Gesture_Handmark1 ph ON ph.def_id = cd.def_id
+                   WHERE ph.model_id = :2 AND cd.gesture = :3
+               )""",
+            [total, dataset_id, label],
         )
         conn.commit()
 
