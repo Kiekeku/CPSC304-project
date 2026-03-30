@@ -85,3 +85,26 @@ async def upload_gesture_video(
         raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}") from exc
     finally:
         Path(tmp_path).unlink(missing_ok=True)
+
+@router.post("/datasets/{dataset_id}/train")
+def train_dataset(dataset_id: str) -> dict:
+    try:
+        result = svc_train(dataset_id)
+        return {"message": "Model trained successfully.", **result}
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}") from exc
+
+
+@router.post("/datasets/{dataset_id}/recognize")
+def recognize(dataset_id: str, body: RecognizeRequest) -> dict:
+    try:
+        return svc_recognize(dataset_id, body.landmarks)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}") from exc
+
