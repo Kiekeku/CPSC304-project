@@ -32,3 +32,15 @@ class TableUpdateRequest(BaseModel):
 class TableDeleteRequest(BaseModel):
     tableName: str
     keys: dict[str, Any] = Field(default_factory=dict)
+
+
+class CreateDatasetRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+
+
+class AddGestureLabelRequest(BaseModel):
+    label: str = Field(..., min_length=1, max_length=50)
+
+
+class RecognizeRequest(BaseModel):
+    landmarks: list[dict] = Field(..., description="List of 21 MediaPipe landmark dicts.")
