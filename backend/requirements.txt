@@ -6,3 +6,5 @@ opencv-python-headless
 python-multipart
 mediapipe
 scikit-learn
+passlib[bcrypt]
+python-jose[cryptography]

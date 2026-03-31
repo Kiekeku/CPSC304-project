@@ -44,3 +44,16 @@ class AddGestureLabelRequest(BaseModel):
 
 class RecognizeRequest(BaseModel):
     landmarks: list[dict] = Field(..., description="List of 21 MediaPipe landmark dicts.")
+
+class RegisterRequest(BaseModel):
+    email: str
+    name: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
