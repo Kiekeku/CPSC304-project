@@ -128,7 +128,10 @@ def prepare_frames(frames: list) -> list:
     processed = []
 
     options = mp_vision.HandLandmarkerOptions(
-        base_options=mp_python.BaseOptions(model_asset_path=MODEL_PATH),
+        base_options=mp_python.BaseOptions(
+            model_asset_path=MODEL_PATH,
+            delegate=mp_python.BaseOptions.Delegate.CPU,
+        ),
         num_hands=2,
         min_hand_detection_confidence=0.5,
         running_mode=mp_vision.RunningMode.IMAGE,
