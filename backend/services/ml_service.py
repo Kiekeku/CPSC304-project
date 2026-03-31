@@ -8,6 +8,7 @@ from models.ml_model import (
     ingest_video,
     train_model,
     recognize_gesture,
+    recognize_from_frame,
 )
 
 def predict(payload: dict[str, Any]) -> dict[str, Any]:
@@ -25,3 +26,4 @@ svc_add_label = add_gesture_label
 svc_ingest_video = ingest_video
 svc_train = train_model
 svc_recognize = recognize_gesture
+svc_recognize_frame  = recognize_from_frame
