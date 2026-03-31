@@ -126,14 +126,15 @@ async def analyze_video(file: UploadFile = File(...)):
                 "message": "Video processed and saved successfully",
                 "recording_id": ids["recording_id"],
                 "transcript_id": ids["transcript_id"],
-                "transcript_text": transcript_text;
-                "model_id_used": model_id;
+                "transcript_text": transcript_text,
+                "model_id_used": model_id,
             },
         )
 
         return {
             **analysis_metadata,
             "message": "Video processed and saved successfully",
+            "transcript_text": model_id,
         }
 
     except Exception as e:
