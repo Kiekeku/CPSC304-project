@@ -25,6 +25,12 @@ def _next_id(cursor, tables, column):
     return cursor.fetchone()[0] or 1
 
 
+def _ensure_data_dir(dataset_id: int) -> Path:
+    data_dir = GESTURE_DATA_DIR / str(dataset_id)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir
+
+
 def create_dataset(name: str) -> dict:
     with get_connection() as conn:
         cur = conn.cursor()
