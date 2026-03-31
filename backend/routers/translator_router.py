@@ -17,7 +17,7 @@ from services.sign_language.analysis_store import (
     update_analysis_record,
 )
 from services.sign_language.store import save_recording_transcript
-
+from models.ml_model import recognize_gesture 
 
 router = APIRouter(prefix="/sign-language", tags=["sign-language"])
 
@@ -58,7 +58,7 @@ def get_analysis_frame(analysis_id: str, filename: str) -> FileResponse:
 @router.post("/analyze")
 async def analyze_video(file: UploadFile = File(...)):
     """
-    accept a video upload, extract frames, and preprocess them
+    accept a video upload, extract frames, run them through chosen ML model, and save transcript to database
     """
 
     suffix = Path(file.filename).suffix
