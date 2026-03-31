@@ -93,6 +93,7 @@ CREATE TABLE Calibrated_User (
     date_of_creation DATE NOT NULL,
     email VARCHAR2(50) NOT NULL,
     name VARCHAR2(50),
+    password_hash VARCHAR2(255),
     UNIQUE (email)
 );
 
