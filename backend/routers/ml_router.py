@@ -20,6 +20,7 @@ from services.ml_service import (
     svc_ingest_video,
     svc_train,
     svc_recognize,
+    svc_recognize_frame,
 )
 
 router = APIRouter(prefix="/ml", tags=["ml"])
@@ -104,6 +105,21 @@ def recognize(dataset_id: int, body: RecognizeRequest) -> dict:
     try:
         return svc_recognize(dataset_id, body.landmarks)
     except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}") from exc
+
+
+@router.post("/datasets/{dataset_id}/recognize-frame")
+async def recognize_frame(
+    dataset_id: int,
+    file: UploadFile = File(...),
+) -> dict:
+    """Accept a single JPEG frame from the webcam, return predicted gesture."""
+    frame_bytes = await file.read()
+    try:
+        return svc_recognize_frame(dataset_id, frame_bytes)
+    except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}") from exc
