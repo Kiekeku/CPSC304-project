@@ -3,8 +3,9 @@ import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+from typing import Optional
 
 from services.sign_language.capture import extract_frames, get_video_info
 from services.sign_language.preprocess import prepare_frames
@@ -56,7 +57,7 @@ def get_analysis_frame(analysis_id: str, filename: str) -> FileResponse:
 
 
 @router.post("/analyze")
-async def analyze_video(file: UploadFile = File(...)):
+async def analyze_video(file: UploadFile = File(...), model_id: Optional[int] = Form(None)):
     """
     accept a video upload, extract frames, run them through chosen ML model, and save transcript to database
     """
@@ -134,7 +135,7 @@ async def analyze_video(file: UploadFile = File(...)):
         return {
             **analysis_metadata,
             "message": "Video processed and saved successfully",
-            "transcript_text": model_id,
+            "transcript_text": transcript_text,
         }
 
     except Exception as e:
