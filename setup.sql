@@ -138,7 +138,7 @@ CREATE TABLE Documented_Saved_Transcript_2 (
 
 CREATE TABLE Documented_Saved_Transcript_3 ( 
     transcript_id INT PRIMARY KEY, 
-    transcript_data VARCHAR[255], 
+    transcript_data VARCHAR[1000], 
     FOREIGN KEY (transcript_id) REFERENCES Documented_Saved_Transcript_1(transcript_id) 
     ON DELETE CASCADE
 );
