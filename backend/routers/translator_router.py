@@ -83,8 +83,30 @@ async def analyze_video(file: UploadFile = File(...)):
             processed_frames=processed,
         )
 
-        # TODO run ML model on processed frames (justin's part), rn keep as temp "unknown" to test db
-        transcript_text = "unknown"
+        # run ML model on processed frames 
+        recognized_words = []
+ 
+        if model_id is not None:
+            for frame_data in processed:
+                for hand in frame_data.get("hands", []):
+                    landmarks = hand.get("landmarks", [])
+                    if len(landmarks) == 21:
+                        try:
+                            result = recognize_gesture(model_id, landmarks)
+                            label = result.get("label", "unknown")
+                            recognized_words.append(label)
+                        except Exception:
+                            pass
+ 
+        # build the transcript string
+        if recognized_words:
+            deduplicated = [recognized_words[0]]
+            for word in recognized_words[1:]:
+                if word != deduplicated[-1]:
+                    deduplicated.append(word)
+            transcript_text = " ".join(deduplicated)
+        else:
+            transcript_text = "unknown"
 
         # assign a unique id to every video
         unique_name = f"{stem}_{timestamp}{suffix_ext}"
