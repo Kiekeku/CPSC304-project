@@ -4,6 +4,10 @@ export async function analyzeVideo(file) {
   const formData = new FormData();
   formData.append('file', file);
 
+  if (modelId != null && modelId !== '') {
+    formData.append('model_id', modelId);
+  }
+
   return requestJson('/sign-language/analyze', {
     method: 'POST',
     body: formData,
