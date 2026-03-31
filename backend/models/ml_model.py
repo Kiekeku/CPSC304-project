@@ -53,12 +53,12 @@ def create_dataset(name: str) -> dict:
 def list_datasets() -> list[dict]:
     with get_connection() as conn:
         cur = conn.cursor()
-
         cur.execute(
             "SELECT model_id, model_type, accuracy, hyperparameter, handmark_id"
-            " FROM Trained_Machine_Learning_Model ORDER BY model_id"
+            " FROM Trained_Machine_Learning_Model"
+            " WHERE model_type NOT IN ('RandomForest', 'MLP', 'SVM', 'LogisticRegression')"
+            " ORDER BY model_id"
         )
-
         rows = cur.fetchall()
     return [
         {
@@ -70,6 +70,7 @@ def list_datasets() -> list[dict]:
         }
         for r in rows
     ]
+
 
 
 def get_dataset_detail(dataset_id: int) -> dict:
