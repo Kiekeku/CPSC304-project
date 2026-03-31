@@ -219,9 +219,10 @@ def train_model(dataset_id: int) -> dict:
 
     for sample_file in data_dir.glob("*.json"):
         label = sample_file.stem
-        vectors = json.loads(sample_file.read_text())
-        X.extend(vectors)
-        y.extend([label] * len(vectors))
+        raw = json.loads(sample_file.read_text())
+        valid = [v for v in raw if isinstance(v, list) and len(v) == 63]
+        X.extend(valid)
+        y.extend([label] * len(valid))
 
     if not X:
         raise ValueError("No training samples found. Upload videos first.")
