@@ -1,6 +1,7 @@
 import DemotableWorkspace from './features/DemotableWorkspace';
 import GestureModelStudio from './features/GestureModelStudio';
 import MlWorkspace from './features/MlWorkspace';
+import SignLanguageWorkspace from './features/SignLanguageWorkspace';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <DemotableWorkspace />
       <GestureModelStudio />
       <MlWorkspace />
+      <SignLanguageWorkspace />
     </main>
   );
 }
