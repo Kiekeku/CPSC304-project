@@ -326,3 +326,36 @@ def recognize_gesture(dataset_id: int, landmarks: list[dict]) -> dict:
     confidence = round(float(max(proba)), 4) if proba is not None else None
 
     return {"label": label, "confidence": confidence}
+
+    
+def recognize_from_frame(dataset_id: int, frame_bytes: bytes) -> dict:
+    from services.sign_language.preprocess import prepare_frames
+
+    nparr = np.frombuffer(frame_bytes, np.uint8)
+    frame_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    if frame_bgr is None:
+        raise ValueError("Could not decode image frame.")
+
+    processed = prepare_frames([frame_bgr])
+    if not processed:
+        return {"label": None, "confidence": None, "hand_count": 0}
+
+    hands = processed[0].get("hands", [])
+    if not hands:
+        return {"label": None, "confidence": None, "hand_count": 0}
+
+    vec = _landmarks_to_vector(hands[0]["landmarks"])
+    if len(vec) != 63:
+        return {"label": None, "confidence": None, "hand_count": len(hands)}
+
+    pkl_path = GESTURE_DATA_DIR / str(dataset_id) / "model.pkl"
+    if not pkl_path.exists():
+        raise ValueError(f"No trained model for dataset {dataset_id}. Train first.")
+
+    clf = pickle.loads(pkl_path.read_bytes())
+    X = np.array([vec])
+    label = clf.predict(X)[0]
+    proba = clf.predict_proba(X)[0] if hasattr(clf, "predict_proba") else None
+    confidence = round(float(max(proba)), 4) if proba is not None else None
+
+    return {"label": label, "confidence": confidence, "hand_count": len(hands)}
