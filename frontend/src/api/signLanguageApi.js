@@ -1,6 +1,6 @@
 import { requestJson } from './http';
 
-export async function analyzeVideo(file) {
+export async function analyzeVideo(file, modelId = null) {
   const formData = new FormData();
   formData.append('file', file);
 
