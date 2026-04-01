@@ -44,3 +44,39 @@ WHERE user_id = :input_user_id
 GROUP BY user_id
 HAVING COUNT(name) > 0;
 
+--SELECTION QUERY: find all recordings created by a specific user
+SELECT recording_id, recording_name, fps, recording_date
+FROM Created_Documented_Recording
+WHERE user_id = :input_user_id;
+
+--GROUP BY QUERY: count how many transcripts each user has saved
+SELECT user_id, COUNT(*) AS transcript_count
+FROM Documented_Saved_Transcript_2
+GROUP BY user_id;
+
+--INSERT QUERY: add a new calibrated definition for a user
+INSERT INTO Calibrated_Definition (def_id, user_id, gesture, def_name, description)
+VALUES (
+    :input_def_id,
+    :input_user_id,
+    :input_gesture,
+    :input_def_name,
+    :input_description
+);
+COMMIT;
+
+--DIVISION QUERY: find users who have saved transcripts in every language currently stored
+SELECT CU.user_id, CU.name
+FROM Calibrated_User CU
+WHERE NOT EXISTS (
+    SELECT DS6.language
+    FROM Documented_Saved_Transcript_6 DS6
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM Documented_Saved_Transcript_2 DS2
+        JOIN Documented_Saved_Transcript_6 DS6_USER
+            ON DS2.transcript_id = DS6_USER.transcript_id
+        WHERE DS2.user_id = CU.user_id
+          AND DS6_USER.language = DS6.language
+    )
+);
