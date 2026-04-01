@@ -63,18 +63,27 @@ INSERT INTO Translated_Word_8 VALUES (2, 101, 'HELLO', 87);
 INSERT INTO Translated_Word_8 VALUES (2, 102, 'SORRY', 85);
 INSERT INTO Translated_Word_8 VALUES (2, 103, 'HELP', 79);
 INSERT INTO Translated_Word_8 VALUES (3, 104, 'GOOD', 91);
-INSERT INTO Translated_Word_8 VALUES (3, 101, 'HELLO', 86); 
+INSERT INTO Translated_Word_8 VALUES (3, 101, 'HELLO', 86);
 
-INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
-    VALUES (1, DATE '2025-09-01', 'jett@example.com', 'Jett Chen');
-INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
-    VALUES (2, DATE '2025-09-15', 'bob@example.com', 'Bob Bill');
-INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
-    VALUES (3, DATE '2025-10-01', 'angel@example.com', 'Angel Super');
-INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
-    VALUES (4, DATE '2025-10-20', 'justin@example.com', 'Justin Awesome');
-INSERT INTO Calibrated_User (user_id, date_of_creation, email, name)
-    VALUES (5, DATE '2025-11-05', 'hao@example.com', 'Hao Cool');
+user_id NUMBER PRIMARY KEY,
+    def_id NUMBER,
+    date_of_creation DATE NOT NULL,
+    email VARCHAR2(50) NOT NULL,
+    name VARCHAR2(50),
+    password_hash VARCHAR2(255),
+    UNIQUE (email)
+
+
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
+    VALUES (1, DATE '2025-09-01', 'jett@example.com', 'Jett Chen', 'jett');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
+    VALUES (2, DATE '2025-09-15', 'bob@example.com', 'Bob Bill', 'bob');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
+    VALUES (3, DATE '2025-10-01', 'angel@example.com', 'Angel Super', 'angel');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
+    VALUES (4, DATE '2025-10-20', 'justin@example.com', 'Justin Awesome', 'justin');
+INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
+    VALUES (5, DATE '2025-11-05', 'hao@example.com', 'Hao Cool', 'hao');
 
 INSERT INTO Calibrated_Definition VALUES (1, 1, 'open_palm', 'HELLO Gesture', 'Flat open hand, fingers together, palm facing out');
 INSERT INTO Calibrated_Definition VALUES (2, 1, 'closed_fist', 'THANK Gesture', 'Closed fist moving forward from chin');
