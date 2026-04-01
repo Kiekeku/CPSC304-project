@@ -8,13 +8,13 @@ import SignLanguageWorkspace from './features/SignLanguageWorkspace';
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);  // add this
 
-  // if (!currentUser) {
-  //   return (
-  //     <main className="container">
-  //       <AuthWorkspace onLogin={setCurrentUser} />
-  //     </main>
-  //   );
-  // }
+  if (!currentUser) {
+    return (
+      <main className="container">
+        <AuthWorkspace onLogin={setCurrentUser} />
+      </main>
+    );
+  }
 
   return (
     <main className="container">
