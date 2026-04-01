@@ -1,13 +1,11 @@
-from passlib.context import CryptContext
+import bcrypt
 from db import get_connection
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 def register_user(email: str, name: str, password: str) -> tuple[bool, str]:
     '''
@@ -21,8 +19,8 @@ def register_user(email: str, name: str, password: str) -> tuple[bool, str]:
             user_id = cursor.fetchone()[0]
             cursor.execute(
                 """INSERT INTO Calibrated_User (user_id, email, name, date_of_creation, password_hash)
-                   VALUES (:uid, :email, :name, SYSDATE, :pw)""",
-                {"uid": user_id, "email": email, "name": name, "pw": hashed}
+                   VALUES (:user_id, :email, :name, SYSDATE, :password_hash)""",
+                {"user_id": user_id, "email": email, "name": name, "password_hash": hashed}
             )
             conn.commit()
             return True, "Registered successfully"

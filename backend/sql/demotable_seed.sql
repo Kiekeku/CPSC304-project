@@ -65,25 +65,16 @@ INSERT INTO Translated_Word_8 VALUES (2, 103, 'HELP', 79);
 INSERT INTO Translated_Word_8 VALUES (3, 104, 'GOOD', 91);
 INSERT INTO Translated_Word_8 VALUES (3, 101, 'HELLO', 86);
 
-user_id NUMBER PRIMARY KEY,
-    def_id NUMBER,
-    date_of_creation DATE NOT NULL,
-    email VARCHAR2(50) NOT NULL,
-    name VARCHAR2(50),
-    password_hash VARCHAR2(255),
-    UNIQUE (email)
-
-
 INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
-    VALUES (1, DATE '2025-09-01', 'jett@example.com', 'Jett Chen', 'jett');
+    VALUES (1, DATE '2025-09-01', 'jett@example.com', 'Jett Chen', '$2b$12$/f6u0hDYReDS4nAeNsNJpO4gmcJ2sfu2CPKyiRwUg3r6gmSV0DKeO');
 INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
-    VALUES (2, DATE '2025-09-15', 'bob@example.com', 'Bob Bill', 'bob');
+    VALUES (2, DATE '2025-09-15', 'bob@example.com', 'Bob Bill', '$2b$12$9lne9zuLJZ0CegHUfOXM1OlffIFUVslVyk8MlPhoyoRdNMr.Um9Si');
 INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
-    VALUES (3, DATE '2025-10-01', 'angel@example.com', 'Angel Super', 'angel');
+    VALUES (3, DATE '2025-10-01', 'angel@example.com', 'Angel Super', '$2b$12$bD1WLOU8iq0cQKsLUSnVUey0IdOwJ04gy2Was.wcA9/o6whUksRfO');
 INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
-    VALUES (4, DATE '2025-10-20', 'justin@example.com', 'Justin Awesome', 'justin');
+    VALUES (4, DATE '2025-10-20', 'justin@example.com', 'Justin Awesome', '$2b$12$q5rjZQghy6O/d.XyyIuxte/Zbz41te6g9mofIkgMPhst3BkiXxmiO');
 INSERT INTO Calibrated_User (user_id, date_of_creation, email, name, password_hash)
-    VALUES (5, DATE '2025-11-05', 'hao@example.com', 'Hao Cool', 'hao');
+    VALUES (5, DATE '2025-11-05', 'hao@example.com', 'Hao Cool', '$2b$12$pvYrN14gEKNvgwri46KxzeiqY3/5kgCULmkfgAQCjWvTLLnGontpq');
 
 INSERT INTO Calibrated_Definition VALUES (1, 1, 'open_palm', 'HELLO Gesture', 'Flat open hand, fingers together, palm facing out');
 INSERT INTO Calibrated_Definition VALUES (2, 1, 'closed_fist', 'THANK Gesture', 'Closed fist moving forward from chin');
