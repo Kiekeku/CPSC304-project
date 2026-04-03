@@ -156,6 +156,8 @@ async def analyze_video(
             "transcript_text": transcript_text,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(type(e).__name__) + ": " + str(e))
 

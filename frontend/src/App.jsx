@@ -91,6 +91,34 @@ function buildHistorySubtitle(item) {
   return parts.join(' • ');
 }
 
+const AUTH_STORAGE_KEY = 'team107.currentUser';
+
+function loadStoredCurrentUser() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+    if (parsed?.userId == null || parsed.userId === '') {
+      return null;
+    }
+
+    return {
+      userId: Number(parsed.userId),
+      name: parsed.name || parsed.email?.split('@')[0] || 'User',
+      email: parsed.email || '',
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [authMode, setAuthMode] = useState('login');
   const [authEmail, setAuthEmail] = useState('');
@@ -99,7 +127,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authMessage, setAuthMessage] = useState('');
   const [authError, setAuthError] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => loadStoredCurrentUser());
 
   const [datasets, setDatasets] = useState([]);
   const [datasetsLoading, setDatasetsLoading] = useState(false);
@@ -175,6 +203,19 @@ export default function App() {
   useEffect(() => {
     analysisModelIdRef.current = analysisModelId;
   }, [analysisModelId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (!currentUser?.userId) {
+      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
+  }, [currentUser]);
 
   useEffect(() => {
     if (!isRecording || !streamRef.current || !liveVideoRef.current) {
@@ -563,10 +604,16 @@ export default function App() {
       return;
     }
 
+    const userId = Number(result.body?.user_id);
+    if (!Number.isFinite(userId) || userId <= 0) {
+      setAuthError('Login succeeded, but no user id was returned.');
+      return;
+    }
+
     setAuthMessage('Login successful.');
 
     setCurrentUser({
-      userId: result.body?.user_id,
+      userId,
       name: authName.trim() || authEmail.split('@')[0],
       email: authEmail,
     });
