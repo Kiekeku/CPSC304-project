@@ -81,9 +81,16 @@ select:focus {
 .auth-hero,
 .app-hero {
   padding: 36px;
-  border-radius: 32px;
   background: #7b4324;
   color: #fff8ef;
+}
+
+.auth-hero {
+  border-radius: 32px;
+}
+
+.app-hero {
+  border-radius: 0;
 }
 
 .kicker,
@@ -237,7 +244,7 @@ select:focus {
 
 .user-chip {
   padding: 16px 18px;
-  border-radius: 22px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
@@ -251,7 +258,7 @@ select:focus {
 
 .summary-card {
   padding: 22px;
-  border-radius: 24px;
+  border-radius: 0;
 }
 
 .summary-card strong,
@@ -281,7 +288,7 @@ select:focus {
 
 .panel {
   padding: 24px;
-  border-radius: 28px;
+  border-radius: 0;
 }
 
 .panel-tall {
@@ -333,7 +340,7 @@ select:focus {
 .preview-card,
 .detail-card {
   padding: 18px;
-  border-radius: 22px;
+  border-radius: 0;
   border: 1px solid var(--line);
   background: var(--panel-strong);
 }
@@ -357,7 +364,7 @@ select:focus {
 
 .video-preview {
   width: 100%;
-  border-radius: 18px;
+  border-radius: 0;
   background: #20170f;
 }
 
@@ -366,7 +373,7 @@ select:focus {
   display: grid;
   place-items: center;
   padding: 24px;
-  border-radius: 18px;
+  border-radius: 0;
   color: var(--muted);
   text-align: center;
   background: #f4ebe1;
@@ -377,7 +384,7 @@ select:focus {
   justify-content: space-between;
   gap: 12px;
   padding: 0.95rem 1rem;
-  border-radius: 16px;
+  border-radius: 0;
   background: #f3ece4;
 }
 
@@ -405,7 +412,7 @@ select:focus {
   width: 100%;
   text-align: left;
   padding: 16px;
-  border-radius: 18px;
+  border-radius: 0;
   background: #fff;
   border: 1px solid var(--line);
 }
@@ -448,6 +455,10 @@ select:focus {
   .app-hero,
   .panel {
     padding: 22px;
+  }
+
+  .auth-hero,
+  .auth-panel {
     border-radius: 24px;
   }
 
