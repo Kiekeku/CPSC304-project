@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Header, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 
 from models.schemas import (
@@ -51,9 +51,16 @@ def get_dataset(dataset_id: int) -> dict:
 
 
 @router.post("/datasets/{dataset_id}/gestures", status_code=201)
-def add_gesture(dataset_id: int, body: AddGestureLabelRequest) -> dict:
+def add_gesture(
+    dataset_id: int,
+    body: AddGestureLabelRequest,
+    user_id: int | None = Header(None, alias="X-User-Id"),
+) -> dict:
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Login required.")
+
     try:
-        return svc_add_label(dataset_id, body.label)
+        return svc_add_label(dataset_id, body.label, user_id)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:

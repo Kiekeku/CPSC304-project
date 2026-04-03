@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from typing import Optional
 
@@ -68,7 +68,11 @@ def get_analysis_frame(analysis_id: str, filename: str) -> FileResponse:
 
 
 @router.post("/analyze")
-async def analyze_video(file: UploadFile = File(...), model_id: Optional[int] = Form(None)):
+async def analyze_video(
+    file: UploadFile = File(...),
+    model_id: Optional[int] = Form(None),
+    user_id: Optional[int] = Header(None, alias="X-User-Id"),
+):
     """
     accept a video upload, extract frames, run them through chosen ML model, and save transcript to database
     """
@@ -124,9 +128,11 @@ async def analyze_video(file: UploadFile = File(...), model_id: Optional[int] = 
         # assign a unique id to every video
         unique_name = build_recording_name(file.filename, now)
 
-        # hardcoded user_id=1 until login is ready
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Login required.")
+
         ids = save_recording_transcript(
-            user_id=1,
+            user_id=user_id,
             recording_name=unique_name,
             fps=info["fps"],
             duration=info["duration_seconds"],

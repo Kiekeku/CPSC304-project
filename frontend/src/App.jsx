@@ -566,6 +566,7 @@ export default function App() {
     setAuthMessage('Login successful.');
 
     setCurrentUser({
+      userId: result.body?.user_id,
       name: authName.trim() || authEmail.split('@')[0],
       email: authEmail,
     });
@@ -606,7 +607,9 @@ export default function App() {
 
     clearModelFeedback();
     setAddingGesture(true);
-    const result = await addGestureLabel(selectedDatasetId, newGestureLabel.trim());
+    const result = await addGestureLabel(selectedDatasetId, newGestureLabel.trim(), {
+      userId: currentUser?.userId,
+    });
     setAddingGesture(false);
 
     if (!result.ok) {
@@ -784,6 +787,7 @@ export default function App() {
 
       const result = await analyzeVideo(analysisVideo, analysisModelId || null, {
         signal: controller.signal,
+        userId: currentUser?.userId,
       });
       window.clearTimeout(timeoutId);
 

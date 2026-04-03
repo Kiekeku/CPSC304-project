@@ -26,10 +26,16 @@ export async function getDataset(datasetId) {
   return requestJson(`${BASE}/datasets/${datasetId}`);
 }
 
-export async function addGestureLabel(datasetId, label) {
+export async function addGestureLabel(datasetId, label, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+
+  if (options.userId != null && options.userId !== '') {
+    headers['X-User-Id'] = String(options.userId);
+  }
+
   return requestJson(`${BASE}/datasets/${datasetId}/gestures`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ label })
   });
 }

@@ -13,9 +13,6 @@ from services.sign_language.preprocess import prepare_frames
 GESTURE_DATA_DIR = Path(__file__).resolve().parent.parent / "gesture_data"
 GESTURE_DATA_DIR.mkdir(exist_ok=True)
 
-DEFAULT_USER_ID = 1
-
-
 def _artifact_ref(*parts: str) -> str:
     return "/".join(parts)[:255]
 
@@ -124,7 +121,7 @@ def get_dataset_detail(dataset_id: int) -> dict:
     }
 
     
-def add_gesture_label(dataset_id: int, label: str) -> dict:
+def add_gesture_label(dataset_id: int, label: str, user_id: int) -> dict:
     with get_connection() as conn:
         cur = conn.cursor()
 
@@ -161,7 +158,7 @@ def add_gesture_label(dataset_id: int, label: str) -> dict:
             "INSERT INTO Calibrated_Definition"
             " (def_id, user_id, gesture, def_name, description)"
             " VALUES (:1, :2, :3, :4, :5)",
-            [def_id, DEFAULT_USER_ID, label, label, f"dataset:{dataset_id}"],
+            [def_id, user_id, label, label, f"dataset:{dataset_id}"],
         )
         cur.execute(
             "INSERT INTO Predicted_Gesture_Handmark1 (handmark_id, def_id, model_id)"

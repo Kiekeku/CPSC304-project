@@ -25,4 +25,6 @@ def login(payload: LoginRequest, response: Response):
     success, message = login_user(payload.email, payload.password)
     if not success:
         response.status_code = status.HTTP_401_UNAUTHORIZED
-    return {"success": success, "message": message}
+        return {"success": success, "message": message}
+
+    return {"success": True, "message": "Login successful", "user_id": int(message)}
