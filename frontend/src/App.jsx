@@ -148,6 +148,7 @@ export default function App() {
   const recordingTimerRef = useRef(null);
   const livePredictionTimerRef = useRef(null);
   const livePredictionPendingRef = useRef(false);
+  const livePredictionErrorCountRef = useRef(0);
   const analysisModelIdRef = useRef('');
 
   const labelDetails = datasetDetail?.label_details ?? [];
@@ -276,6 +277,15 @@ export default function App() {
     setLivePredictionConfidence(null);
     setLiveHandCount(null);
     livePredictionPendingRef.current = false;
+    livePredictionErrorCountRef.current = 0;
+  };
+
+  const stopLivePredictionLoop = () => {
+    if (livePredictionTimerRef.current) {
+      window.clearInterval(livePredictionTimerRef.current);
+      livePredictionTimerRef.current = null;
+    }
+    livePredictionPendingRef.current = false;
   };
 
   async function captureLivePrediction() {
@@ -312,12 +322,19 @@ export default function App() {
       const result = await recognizeGestureFrame(datasetId, frameFile);
 
       if (!result.ok) {
+        livePredictionErrorCountRef.current += 1;
         setLivePrediction(result.body?.detail || 'Live prediction unavailable.');
         setLivePredictionConfidence(null);
         setLiveHandCount(null);
+
+        if (livePredictionErrorCountRef.current >= 3) {
+          stopLivePredictionLoop();
+          setRecordingError('Live gesture hints stopped after repeated prediction errors. Stop and restart recording after confirming the selected model is trained.');
+        }
         return;
       }
 
+      livePredictionErrorCountRef.current = 0;
       const body = result.body ?? {};
       setLiveHandCount(body.hand_count ?? null);
 
@@ -727,11 +744,14 @@ export default function App() {
 
   function handleStopRecording() {
     if (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive') {
+      stopLivePredictionLoop();
       stopLiveStream();
       setIsRecording(false);
       return;
     }
 
+    stopLivePredictionLoop();
+    setIsRecording(false);
     setRecordingStatus('Finalizing recording...');
     mediaRecorderRef.current.stop();
   }
@@ -754,9 +774,18 @@ export default function App() {
     setAnalysisLoading(true);
     setAnalysisError('');
     setAnalysisMessage('');
+    let timeoutId = null;
 
     try {
-      const result = await analyzeVideo(analysisVideo, analysisModelId || null);
+      const controller = new AbortController();
+      timeoutId = window.setTimeout(() => {
+        controller.abort();
+      }, 90000);
+
+      const result = await analyzeVideo(analysisVideo, analysisModelId || null, {
+        signal: controller.signal,
+      });
+      window.clearTimeout(timeoutId);
 
       if (!result.ok) {
         setAnalysisError(result.body?.detail || 'Video analysis failed.');
@@ -769,8 +798,15 @@ export default function App() {
       setAnalysisMessage('Analysis complete. Transcript saved to history.');
       await loadHistory(result.body.analysis_id);
     } catch (error) {
+      if (error.name === 'AbortError') {
+        setAnalysisError('Video analysis took longer than 90 seconds and was cancelled. Try a shorter clip or a lower-resolution recording.');
+        return;
+      }
       setAnalysisError(error.message || 'Video analysis failed.');
     } finally {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
       setAnalysisLoading(false);
     }
   }

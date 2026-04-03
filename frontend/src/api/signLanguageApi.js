@@ -1,6 +1,6 @@
 import { requestJson } from './http';
 
-export async function analyzeVideo(file, modelId = null) {
+export async function analyzeVideo(file, modelId = null, options = {}) {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -11,6 +11,7 @@ export async function analyzeVideo(file, modelId = null) {
   return requestJson('/sign-language/analyze', {
     method: 'POST',
     body: formData,
+    signal: options.signal,
   });
 }
 

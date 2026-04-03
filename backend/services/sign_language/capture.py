@@ -13,7 +13,11 @@ def get_video_info(video_path: str) -> dict:
     fps = cap.get(cv2.CAP_PROP_FPS)  # frames per second
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    duration = total_frames / fps  # seconds
+    if not fps or fps <= 0:
+        fps = 0
+        duration = 0
+    else:
+        duration = total_frames / fps  # seconds
 
     cap.release()
 
@@ -55,7 +59,8 @@ def extract_frames(video_path: str, frame_interval: int=5) -> list:
 
     print(f"Total frames in video: {frame_count}")
     print(f"Frames extracted (every {frame_interval}): {len(frames)}")
-    print(f"Each frame shape: {frames[0].shape}")  
+    if frames:
+        print(f"Each frame shape: {frames[0].shape}")
 
     return frames
 
