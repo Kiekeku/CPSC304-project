@@ -10,6 +10,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 def register_user(email: str, name: str, password: str) -> tuple[bool, str]:
     '''
     registers a new user profile
+    uses parameterized queries (:user_id, :email, etc.) to prevent SQL injection
     '''
     hashed = hash_password(password)
     try:
@@ -20,6 +21,7 @@ def register_user(email: str, name: str, password: str) -> tuple[bool, str]:
             cursor.execute(
                 """INSERT INTO Calibrated_User (user_id, email, name, date_of_creation, password_hash)
                    VALUES (:user_id, :email, :name, SYSDATE, :password_hash)""",
+                   # sends values separately from the query, so malicious input is treated as literal data not SQL
                 {"user_id": user_id, "email": email, "name": name, "password_hash": hashed}
             )
             conn.commit()
@@ -36,7 +38,7 @@ def login_user(email: str, password: str) -> tuple[bool, str]:
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT user_id, password_hash FROM Calibrated_User WHERE email = :email",
-                {"email": email}
+                {"email": email} # :email placeholder keeps user input out of the SQL string
             )
             row = cursor.fetchone()
             if not row or not verify_password(password, row[1]):

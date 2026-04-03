@@ -21,7 +21,8 @@ def test_oracle_connection() -> bool:
 
 def _normalize_identifier(identifier: str) -> str:
     normalized = identifier.strip().upper()
-    if not IDENTIFIER_RE.fullmatch(normalized):
+    if not IDENTIFIER_RE.fullmatch(normalized): 
+        # only valid oracle identifier characters are allowed through
         raise ValueError(f"Invalid identifier: {identifier}")
     return normalized
 
@@ -202,7 +203,7 @@ def insert_table_row(table_name: str, values: dict[str, Any]) -> tuple[bool, str
 
                 cursor.execute(
                     f'INSERT INTO "{normalized_table}" ({quoted_columns}) VALUES ({placeholder_sql})',
-                    bind_data,
+                    bind_data, # all values are bound separately via :v0, :v1, :v2 etc.
                 )
             conn.commit()
             return True, "Row inserted successfully."

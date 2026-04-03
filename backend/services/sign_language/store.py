@@ -7,6 +7,7 @@ def _next_id(cursor, table_names, column_name):
     Return the next numeric id across a set of tables that should share the same key space.
     This prevents collisions when one table contains a newer id than another.
     """
+    # table_names and column_name are hardcoded by caller, never user input, so direct interpolation is OK
     select_parts = [
         f"SELECT NVL(MAX({column_name}), 0) AS max_id FROM {table_name}" for table_name in table_names
     ]
