@@ -40,14 +40,6 @@ Open the `remote-start.sh` script and set your team number:
 TEAM_NUMBER=... # Replace ... with your actual team number here
 ```
 
-### 3. Run the Application
-
-Execute the remote start script:
-
-```bash
-./remote-start.sh
-```
-
 # Project Info
 
 This project runs as one service:
@@ -60,5 +52,8 @@ Update `.env` values:
 - `PORT` (for web app)
 - `ORACLE_HOST`, `ORACLE_PORT`, `ORACLE_DBNAME`
 
-testing
-test
+To run the application, no libraries needed. Run ./scripts/deploy.sh to deploy site and go to localhost:port_number.
+
+To updated the ui, npm needs to be installed. Once installed, running ./scripts/build-frontend.sh will update the files in frontend/dist. This will update the ui for everyone.
+
+If using a machine not on the student servers, use bash scripts/mac/db-tunnel.sh to connect to the oracle database. Or use bash scripts/win/db-tunnel.cmd.
