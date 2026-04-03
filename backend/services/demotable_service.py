@@ -1,13 +1,22 @@
 import logging
 import re
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any
 
 from db import get_connection
-from services.sql_service import execute_sql_file
+from services.sql_service import SQL_DIR, _normalize_statement, _split_sql_script, execute_sql_file
 
 logger = logging.getLogger(__name__)
 IDENTIFIER_RE = re.compile(r"^[A-Z][A-Z0-9_$#]*$")
+DEFAULT_QUERY_BINDS = {
+    "transcript_id": 1,
+    "input_def_id": 99999,
+    "input_user_id": 1,
+    "input_gesture": "preview_gesture",
+    "input_def_name": "Preview Definition",
+    "input_description": "Docs preview row",
+}
 
 
 def test_oracle_connection() -> bool:
@@ -124,6 +133,87 @@ def initiate_demotable() -> bool:
 
     seed_ok = execute_sql_file("demotable_seed.sql", auto_commit=True)
     return seed_ok
+
+
+def run_demotable_queries_preview() -> list[dict[str, Any]]:
+    file_path = Path(SQL_DIR) / "demotable_queries.sql"
+    script_text = file_path.read_text(encoding="utf-8")
+    statements = _split_sql_script(script_text)
+    results: list[dict[str, Any]] = []
+
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            for index, statement in enumerate(statements, start=1):
+                normalized = _normalize_statement(statement)
+                upper = normalized.lstrip().upper()
+
+                if not normalized:
+                    continue
+
+                if upper == "COMMIT" or upper == "ROLLBACK":
+                    results.append(
+                        {
+                            "index": index,
+                            "statement": normalized,
+                            "type": upper,
+                            "status": "skipped",
+                            "message": f"{upper} skipped for preview mode.",
+                        }
+                    )
+                    continue
+
+                executable = normalized.replace("&attributes", "user_id, email, name")
+                bind_names = {name.lower() for name in re.findall(r":([A-Za-z_][A-Za-z0-9_]*)", executable)}
+                bind_values = {
+                    bind_name: value
+                    for bind_name, value in DEFAULT_QUERY_BINDS.items()
+                    if bind_name.lower() in bind_names
+                }
+
+                try:
+                    cursor.execute(executable, bind_values)
+                    if cursor.description:
+                        columns = [column[0] for column in cursor.description]
+                        rows = cursor.fetchall()
+                        results.append(
+                            {
+                                "index": index,
+                                "statement": normalized,
+                                "type": "SELECT",
+                                "status": "success",
+                                "columns": columns,
+                                "rows": [[*row] for row in rows],
+                                "rowCount": len(rows),
+                                "binds": bind_values,
+                            }
+                        )
+                    else:
+                        statement_type = upper.split(None, 1)[0]
+                        results.append(
+                            {
+                                "index": index,
+                                "statement": normalized,
+                                "type": statement_type,
+                                "status": "success",
+                                "rowCount": cursor.rowcount,
+                                "binds": bind_values,
+                            }
+                        )
+                except Exception as exc:
+                    logger.exception("Failed to preview demotable query %s", index)
+                    results.append(
+                        {
+                            "index": index,
+                            "statement": normalized,
+                            "type": upper.split(None, 1)[0],
+                            "status": "error",
+                            "message": str(exc),
+                            "binds": bind_values,
+                        }
+                    )
+        conn.rollback()
+
+    return results
 
 
 def get_table_metadata(table_name: str) -> dict[str, Any] | None:

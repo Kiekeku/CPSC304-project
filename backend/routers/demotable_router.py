@@ -8,6 +8,7 @@ from services.demotable_service import (
     initiate_demotable,
     insert_table_row,
     list_tables,
+    run_demotable_queries_preview,
     test_oracle_connection,
     update_table_row,
 )
@@ -35,6 +36,15 @@ def post_initiate_demotable(response: Response) -> dict:
     if not success:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     return {"success": success}
+
+
+@router.post("/run-demotable-queries")
+def post_run_demotable_queries(response: Response) -> dict:
+    try:
+        return {"success": True, "results": run_demotable_queries_preview()}
+    except Exception as exc:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"success": False, "message": str(exc), "results": []}
 
 
 @router.get("/table-metadata/{table_name}")
