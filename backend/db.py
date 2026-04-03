@@ -104,3 +104,50 @@ def get_highly_active_users(connection, min_recordings):
     bind_vars = {"input_min_recordings": min_recordings}
     cursor.execute(query, bind_vars)
     return cursor.fetchall()
+
+def update_user_profile(connection, user_id, new_name=None, new_email=None):
+    cursor = connection.cursor()
+    query = "UPDATE Calibrated_User SET "
+    updates = []
+    bind_vars = {"input_user_id": user_id}
+
+    if new_name:
+        updates.append("name = :input_name") # Hardcoded structure
+        bind_vars["input_name"] = new_name
+    if new_email:
+        updates.append("email = :input_email") # Hardcoded structure
+        bind_vars["input_email"] = new_email
+
+    if not updates:
+        return "No fields provided to update."
+
+    query += ", ".join(updates)
+    query += " WHERE user_id = :input_user_id"
+
+    cursor.execute(query, bind_vars)
+    connection.commit()
+    return f"Updated {cursor.rowcount} row(s)."
+
+def get_translated_words_for_transcript(connection, transcript_id):
+    cursor = connection.cursor()
+    query = """
+        SELECT TW1.instance_id, TW5.translation, TW4.translation_confidence, TW1.transcript_id
+        FROM Translated_Word_1 TW1
+        JOIN Translated_Word_5 TW5 ON TW1.instance_id = TW5.instance_id
+        JOIN Translated_Word_4 TW4 ON TW1.instance_id = TW4.instance_id
+        WHERE TW1.transcript_id = :transcript_id
+    """
+    bind_vars = {"transcript_id": transcript_id}
+    cursor.execute(query, bind_vars)
+    return cursor.fetchall()
+
+
+def get_transcript_counts_per_user(connection):
+    cursor = connection.cursor()
+    query = """
+        SELECT user_id, COUNT(*) AS transcript_count
+        FROM Documented_Saved_Transcript_2
+        GROUP BY user_id
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
