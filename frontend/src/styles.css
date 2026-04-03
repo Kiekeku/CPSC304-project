@@ -204,6 +204,10 @@ select:focus {
   font-weight: 700;
 }
 
+.auth-switch {
+  justify-self: start;
+}
+
 .message-banner {
   padding: 0.9rem 1rem;
   border-radius: 16px;

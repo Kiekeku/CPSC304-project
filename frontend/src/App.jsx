@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { login } from './api/authApi';
+import { login, register } from './api/authApi';
 import {
   addGestureLabel,
   createDataset,
@@ -68,7 +68,9 @@ function buildHistorySubtitle(item) {
 }
 
 export default function App() {
+  const [authMode, setAuthMode] = useState('login');
   const [authEmail, setAuthEmail] = useState('');
+  const [authName, setAuthName] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [authMessage, setAuthMessage] = useState('');
@@ -307,7 +309,10 @@ export default function App() {
     setAuthMessage('');
     setAuthError('');
 
-    const result = await login(authEmail, authPassword);
+    const result =
+      authMode === 'login'
+        ? await login(authEmail, authPassword)
+        : await register(authEmail, authName.trim(), authPassword);
 
     setAuthLoading(false);
 
@@ -316,10 +321,16 @@ export default function App() {
       return;
     }
 
+    if (authMode === 'register') {
+      setAuthMessage('Registration successful. You can now sign in.');
+      setAuthMode('login');
+      return;
+    }
+
     setAuthMessage('Login successful.');
 
     setCurrentUser({
-      name: authEmail.split('@')[0],
+      name: authName.trim() || authEmail.split('@')[0],
       email: authEmail,
     });
   }
@@ -473,9 +484,21 @@ export default function App() {
     return (
       <main className="auth-shell">
         <section className="auth-panel">
-          <p className="panel-eyebrow">Welcome back</p>
-          <h2>Sign in</h2>
+          <p className="panel-eyebrow">{authMode === 'login' ? 'Welcome back' : 'Create account'}</p>
+          <h2>{authMode === 'login' ? 'Sign in' : 'Register'}</h2>
           <form className="auth-form" onSubmit={handleAuthSubmit}>
+            {authMode === 'register' ? (
+              <label>
+                Name
+                <input
+                  type="text"
+                  value={authName}
+                  onChange={(event) => setAuthName(event.target.value)}
+                  placeholder="Your name"
+                  autoComplete="name"
+                />
+              </label>
+            ) : null}
             <label>
               Email
               <input
@@ -483,6 +506,7 @@ export default function App() {
                 value={authEmail}
                 onChange={(event) => setAuthEmail(event.target.value)}
                 placeholder="you@example.com"
+                autoComplete="email"
               />
             </label>
             <label>
@@ -491,13 +515,31 @@ export default function App() {
                 type="password"
                 value={authPassword}
                 onChange={(event) => setAuthPassword(event.target.value)}
-                placeholder="Enter your password"
+                placeholder={authMode === 'login' ? 'Enter your password' : 'Create a password'}
+                autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
               />
             </label>
             {authMessage ? <div className="message-banner message-success">{authMessage}</div> : null}
             {authError ? <div className="message-banner message-error">{authError}</div> : null}
             <button type="submit" className="primary-button" disabled={authLoading}>
-              {authLoading ? 'Signing in...' : 'Log in'}
+              {authLoading
+                ? authMode === 'login'
+                  ? 'Signing in...'
+                  : 'Creating account...'
+                : authMode === 'login'
+                  ? 'Log in'
+                  : 'Create account'}
+            </button>
+            <button
+              type="button"
+              className="text-button auth-switch"
+              onClick={() => {
+                setAuthMode((current) => (current === 'login' ? 'register' : 'login'));
+                setAuthMessage('');
+                setAuthError('');
+              }}
+            >
+              {authMode === 'login' ? 'Need an account? Register here.' : 'Already registered? Sign in here.'}
             </button>
           </form>
         </section>
