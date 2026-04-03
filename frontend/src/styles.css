@@ -349,6 +349,62 @@ select:focus {
   background: var(--panel-strong);
 }
 
+.live-capture-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #f7efe5;
+}
+
+.live-capture-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.live-capture-header h3 {
+  margin: 0.35rem 0 0;
+  font-size: 1.1rem;
+  letter-spacing: -0.03em;
+}
+
+.live-indicator {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(90, 65, 29, 0.1);
+  background: #efe4d7;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.live-indicator-active {
+  background: rgba(202, 91, 46, 0.14);
+  color: var(--accent-dark);
+  border-color: rgba(202, 91, 46, 0.28);
+}
+
+.live-preview-shell {
+  min-height: 240px;
+  border: 1px solid var(--line);
+  background: #20170f;
+}
+
+.live-canvas {
+  display: none;
+}
+
+.live-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.live-meta-card strong {
+  font-size: 1.2rem;
+}
+
 .transcript-card {
   background: #fff3e8;
 }
@@ -370,6 +426,13 @@ select:focus {
   width: 100%;
   border-radius: 0;
   background: #20170f;
+}
+
+.live-video-preview {
+  display: block;
+  min-height: 240px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 
 .preview-empty {
@@ -467,7 +530,8 @@ select:focus {
   }
 
   .inline-form,
-  .metric-grid {
+  .metric-grid,
+  .live-meta-grid {
     grid-template-columns: 1fr;
   }
 

@@ -25,6 +25,17 @@ router = APIRouter(prefix="/sign-language", tags=["sign-language"])
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 FRAME_INTERVAL = 5
+MAX_RECORDING_NAME_LENGTH = 50
+
+
+def build_recording_name(filename: str, timestamp: datetime) -> str:
+    suffix = Path(filename).suffix[:10]
+    stem = Path(filename).stem.strip() or "recording"
+    compact_stamp = timestamp.strftime("%Y%m%d%H%M%S")
+    reserved = len(compact_stamp) + len(suffix) + 1
+    max_stem_length = max(1, MAX_RECORDING_NAME_LENGTH - reserved)
+    trimmed_stem = stem[:max_stem_length]
+    return f"{trimmed_stem}_{compact_stamp}{suffix}"
 
 
 @router.get("/analyses")
@@ -72,7 +83,8 @@ async def analyze_video(file: UploadFile = File(...), model_id: Optional[int] = 
         info["frame_interval"] = FRAME_INTERVAL
         frames = extract_frames(tmp_path, frame_interval=FRAME_INTERVAL)
         processed = prepare_frames(frames)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        now = datetime.now()
+        timestamp = now.strftime("%Y%m%d_%H%M%S_%f")
         stem = Path(file.filename).stem
         suffix_ext = Path(file.filename).suffix
         analysis_id = f"{stem}_{timestamp}"
@@ -110,7 +122,7 @@ async def analyze_video(file: UploadFile = File(...), model_id: Optional[int] = 
             transcript_text = "unknown"
 
         # assign a unique id to every video
-        unique_name = f"{stem}_{timestamp}{suffix_ext}"
+        unique_name = build_recording_name(file.filename, now)
 
         # hardcoded user_id=1 until login is ready
         ids = save_recording_transcript(

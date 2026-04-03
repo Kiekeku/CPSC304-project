@@ -55,3 +55,13 @@ export async function recognizeGesture(datasetId, landmarks) {
     body: JSON.stringify({ landmarks })
   });
 }
+
+export async function recognizeGestureFrame(datasetId, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return requestJson(`${BASE}/datasets/${datasetId}/recognize-frame`, {
+    method: 'POST',
+    body: formData
+  });
+}

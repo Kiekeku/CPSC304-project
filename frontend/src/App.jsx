@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { login, register } from './api/authApi';
 import {
   addGestureLabel,
   createDataset,
   getDataset,
   listDatasets,
+  recognizeGestureFrame,
   trainDataset,
   uploadGestureVideo,
 } from './api/mlApi';
@@ -47,6 +48,29 @@ function formatFileSize(bytes) {
   }
 
   return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+function formatConfidence(value) {
+  if (value == null) {
+    return 'Confidence unavailable';
+  }
+
+  return `${Math.round(value * 100)}% confidence`;
+}
+
+function getSupportedRecordingMimeType() {
+  if (typeof MediaRecorder === 'undefined') {
+    return '';
+  }
+
+  const candidates = [
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm',
+    'video/mp4',
+  ];
+
+  return candidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
 }
 
 function buildHistorySubtitle(item) {
@@ -101,6 +125,14 @@ export default function App() {
   const [analysisError, setAnalysisError] = useState('');
   const [analysisMessage, setAnalysisMessage] = useState('');
   const [latestAnalysis, setLatestAnalysis] = useState(null);
+  const [analysisVideoSource, setAnalysisVideoSource] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDurationSeconds, setRecordingDurationSeconds] = useState(0);
+  const [recordingStatus, setRecordingStatus] = useState('');
+  const [recordingError, setRecordingError] = useState('');
+  const [livePrediction, setLivePrediction] = useState('');
+  const [livePredictionConfidence, setLivePredictionConfidence] = useState(null);
+  const [liveHandCount, setLiveHandCount] = useState(null);
 
   const [historyItems, setHistoryItems] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -108,11 +140,25 @@ export default function App() {
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [historyError, setHistoryError] = useState('');
 
+  const liveVideoRef = useRef(null);
+  const liveCanvasRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const recordingChunksRef = useRef([]);
+  const recordingTimerRef = useRef(null);
+  const livePredictionTimerRef = useRef(null);
+  const livePredictionPendingRef = useRef(false);
+  const analysisModelIdRef = useRef('');
+
   const labelDetails = datasetDetail?.label_details ?? [];
   const trainedDatasets = useMemo(
     () => datasets.filter((dataset) => dataset.trained),
     [datasets]
   );
+  const recordingSupported =
+    typeof navigator !== 'undefined' &&
+    typeof MediaRecorder !== 'undefined' &&
+    Boolean(navigator.mediaDevices?.getUserMedia);
 
   useEffect(() => {
     if (!analysisVideo) {
@@ -125,10 +171,183 @@ export default function App() {
     return () => URL.revokeObjectURL(nextUrl);
   }, [analysisVideo]);
 
+  useEffect(() => {
+    analysisModelIdRef.current = analysisModelId;
+  }, [analysisModelId]);
+
+  useEffect(() => {
+    if (!isRecording || !streamRef.current || !liveVideoRef.current) {
+      return;
+    }
+
+    const liveVideo = liveVideoRef.current;
+    liveVideo.srcObject = streamRef.current;
+    liveVideo.muted = true;
+    liveVideo.playsInline = true;
+
+    const ensurePlayback = async () => {
+      if (liveVideo.readyState < 1) {
+        await new Promise((resolve) => {
+          liveVideo.onloadedmetadata = () => resolve();
+        });
+      }
+
+      await liveVideo.play().catch(() => {});
+    };
+
+    ensurePlayback().catch(() => {});
+
+    return () => {
+      liveVideo.onloadedmetadata = null;
+    };
+  }, [isRecording]);
+
+  useEffect(() => {
+    if (recordingTimerRef.current) {
+      window.clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+
+    if (!isRecording) {
+      return undefined;
+    }
+
+    recordingTimerRef.current = window.setInterval(() => {
+      setRecordingDurationSeconds((current) => current + 1);
+    }, 1000);
+
+    return () => {
+      if (recordingTimerRef.current) {
+        window.clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+    };
+  }, [isRecording]);
+
+  useEffect(() => {
+    if (livePredictionTimerRef.current) {
+      window.clearInterval(livePredictionTimerRef.current);
+      livePredictionTimerRef.current = null;
+    }
+
+    if (!isRecording) {
+      return undefined;
+    }
+
+    if (!analysisModelId) {
+      setLivePrediction('Select a trained model to see live gesture hints.');
+      setLivePredictionConfidence(null);
+      setLiveHandCount(null);
+      return undefined;
+    }
+
+    livePredictionTimerRef.current = window.setInterval(() => {
+      captureLivePrediction().catch(() => {});
+    }, 1200);
+
+    captureLivePrediction().catch(() => {});
+
+    return () => {
+      if (livePredictionTimerRef.current) {
+        window.clearInterval(livePredictionTimerRef.current);
+        livePredictionTimerRef.current = null;
+      }
+    };
+  }, [analysisModelId, isRecording]);
+
   const clearModelFeedback = () => {
     setModelMessage('');
     setModelError('');
   };
+
+  const stopLiveStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+
+    if (liveVideoRef.current) {
+      liveVideoRef.current.srcObject = null;
+    }
+  };
+
+  const resetLiveFeedback = () => {
+    setLivePrediction('');
+    setLivePredictionConfidence(null);
+    setLiveHandCount(null);
+    livePredictionPendingRef.current = false;
+  };
+
+  async function captureLivePrediction() {
+    const datasetId = analysisModelIdRef.current;
+    const video = liveVideoRef.current;
+    const canvas = liveCanvasRef.current;
+
+    if (!datasetId || !video || !canvas || livePredictionPendingRef.current) {
+      return;
+    }
+
+    if (video.readyState < 2 || !video.videoWidth || !video.videoHeight) {
+      return;
+    }
+
+    livePredictionPendingRef.current = true;
+
+    try {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, 'image/jpeg', 0.92);
+      });
+
+      if (!blob) {
+        return;
+      }
+
+      const frameFile = new File([blob], 'live-frame.jpg', { type: 'image/jpeg' });
+      const result = await recognizeGestureFrame(datasetId, frameFile);
+
+      if (!result.ok) {
+        setLivePrediction(result.body?.detail || 'Live prediction unavailable.');
+        setLivePredictionConfidence(null);
+        setLiveHandCount(null);
+        return;
+      }
+
+      const body = result.body ?? {};
+      setLiveHandCount(body.hand_count ?? null);
+
+      if (body.label) {
+        setLivePrediction(body.label);
+        setLivePredictionConfidence(body.confidence ?? null);
+        return;
+      }
+
+      setLivePrediction(body.hand_count ? 'Hand detected, waiting for a clearer pose.' : 'No hands detected.');
+      setLivePredictionConfidence(null);
+    } finally {
+      livePredictionPendingRef.current = false;
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        window.clearInterval(recordingTimerRef.current);
+      }
+      if (livePredictionTimerRef.current) {
+        window.clearInterval(livePredictionTimerRef.current);
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      stopLiveStream();
+    };
+  }, []);
 
   async function loadDatasets(preferredDatasetId = '') {
     setDatasetsLoading(true);
@@ -435,6 +654,94 @@ export default function App() {
     );
     await loadDatasets(selectedDatasetId);
     await refreshSelectedDataset();
+  }
+
+  async function handleStartRecording() {
+    if (isRecording) {
+      return;
+    }
+
+    if (!recordingSupported) {
+      setRecordingError('This browser does not support camera recording.');
+      return;
+    }
+
+    stopLiveStream();
+    setRecordingError('');
+    setRecordingStatus('');
+    setAnalysisError('');
+    setAnalysisMessage('');
+    resetLiveFeedback();
+    setRecordingDurationSeconds(0);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+      setIsRecording(true);
+
+      const mimeType = getSupportedRecordingMimeType();
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+      recordingChunksRef.current = [];
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          recordingChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blobType = recorder.mimeType || mimeType || 'video/webm';
+        const clip = new Blob(recordingChunksRef.current, { type: blobType });
+
+        stopLiveStream();
+        setIsRecording(false);
+
+        if (!clip.size) {
+          setRecordingError('Recording finished, but no clip data was captured.');
+          return;
+        }
+
+        const extension = blobType.includes('mp4') ? 'mp4' : 'webm';
+        const file = new File([clip], `live-recording-${Date.now()}.${extension}`, { type: blobType });
+
+        setAnalysisVideo(file);
+        setAnalysisVideoSource('recording');
+        setRecordingStatus('Live recording ready. Review it, then run analysis.');
+        setAnalysisMessage('Live recording attached. Use the same Analyze video action as an upload.');
+      };
+
+      recorder.start(250);
+      setRecordingStatus('Recording in progress. Stop when the signer finishes.');
+    } catch (error) {
+      stopLiveStream();
+      setIsRecording(false);
+      setRecordingError(error.message || 'Unable to access the camera.');
+    }
+  }
+
+  function handleStopRecording() {
+    if (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive') {
+      stopLiveStream();
+      setIsRecording(false);
+      return;
+    }
+
+    setRecordingStatus('Finalizing recording...');
+    mediaRecorderRef.current.stop();
+  }
+
+  function handleAnalysisVideoChange(event) {
+    const file = event.target.files?.[0] ?? null;
+    setAnalysisVideo(file);
+    setAnalysisVideoSource(file ? 'upload' : '');
+    setAnalysisError('');
+    setAnalysisMessage(file ? 'Upload ready. Run analysis when you are ready.' : '');
   }
 
   async function handleAnalyzeVideo(event) {
@@ -774,13 +1081,87 @@ export default function App() {
                 <input
                   type="file"
                   accept="video/*"
-                  onChange={(event) => setAnalysisVideo(event.target.files?.[0] ?? null)}
+                  onChange={handleAnalysisVideoChange}
+                  disabled={isRecording}
                 />
               </label>
 
+              <section className="live-capture-card">
+                <div className="live-capture-header">
+                  <div>
+                    <span className="summary-label">Live recording</span>
+                    <h3>Record instead of upload</h3>
+                  </div>
+                  <span className={`live-indicator${isRecording ? ' live-indicator-active' : ''}`}>
+                    {recordingSupported ? (isRecording ? 'Recording' : 'Camera ready') : 'Unavailable'}
+                  </span>
+                </div>
+
+                <div className="live-preview-shell">
+                  {isRecording ? (
+                    <video
+                      ref={liveVideoRef}
+                      className="video-preview live-video-preview"
+                      autoPlay
+                      muted
+                      playsInline
+                    />
+                  ) : analysisVideoSource === 'recording' && analysisVideoUrl ? (
+                    <video className="video-preview" controls src={analysisVideoUrl} />
+                  ) : (
+                    <div className="preview-empty">
+                      Start a short recording here, then analyze it with the same button you use for uploads.
+                    </div>
+                  )}
+                  <canvas ref={liveCanvasRef} className="live-canvas" />
+                </div>
+
+                <div className="live-meta-grid">
+                  <div className="metric-card live-meta-card">
+                    <span className="summary-label">Elapsed</span>
+                    <strong>{formatDuration(recordingDurationSeconds)}</strong>
+                    <p>{isRecording ? 'Current take length' : 'Ready for the next take'}</p>
+                  </div>
+                  <div className="metric-card live-meta-card">
+                    <span className="summary-label">Live hint</span>
+                    <strong>{livePrediction || 'No live hint yet'}</strong>
+                    <p>
+                      {livePredictionConfidence != null
+                        ? formatConfidence(livePredictionConfidence)
+                        : liveHandCount
+                          ? `${liveHandCount} hand${liveHandCount === 1 ? '' : 's'} detected`
+                          : 'Model-guided webcam preview'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={isRecording ? handleStopRecording : handleStartRecording}
+                    disabled={!recordingSupported}
+                  >
+                    {isRecording ? 'Stop recording' : 'Start live recording'}
+                  </button>
+                </div>
+
+                {recordingStatus ? (
+                  <div className="message-banner message-success">{recordingStatus}</div>
+                ) : null}
+                {recordingError ? <div className="message-banner message-error">{recordingError}</div> : null}
+                {!recordingSupported ? (
+                  <div className="message-banner message-neutral">
+                    Camera capture is unavailable in this browser. Upload a video instead.
+                  </div>
+                ) : null}
+              </section>
+
               {analysisVideo ? (
                 <div className="upload-meta">
-                  <span>{analysisVideo.name}</span>
+                  <span>
+                    {analysisVideoSource === 'recording' ? 'Live recording selected' : analysisVideo.name}
+                  </span>
                   <span>{formatFileSize(analysisVideo.size)}</span>
                 </div>
               ) : null}
@@ -788,13 +1169,13 @@ export default function App() {
               {analysisMessage ? <div className="message-banner message-success">{analysisMessage}</div> : null}
               {analysisError ? <div className="message-banner message-error">{analysisError}</div> : null}
 
-              <button type="submit" className="primary-button" disabled={analysisLoading}>
-                {analysisLoading ? 'Analyzing video...' : 'Analyze video'}
+              <button type="submit" className="primary-button" disabled={analysisLoading || isRecording}>
+                {analysisLoading ? 'Analyzing video...' : isRecording ? 'Stop recording first' : 'Analyze video'}
               </button>
 
               {!analysisVideo && (
                 <div className="message-banner message-neutral">
-                  Choose a video and a trained model before running analysis.
+                  Upload a clip or record one live, then run analysis.
                 </div>
               )}
             </form>

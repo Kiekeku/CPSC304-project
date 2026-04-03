@@ -3,6 +3,7 @@ import pickle
 from datetime import datetime
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 from db import get_connection
