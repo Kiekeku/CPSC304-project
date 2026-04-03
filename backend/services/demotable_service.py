@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from db import (
-    delete_predicted_gesture,
+    delete_analyzed_frame,
     get_connection,
     get_highly_active_users,
     get_transcript_counts_per_user,
@@ -33,11 +33,12 @@ DEFAULT_QUERY_BINDS = {
 
 DOCS_QUERY_DEFINITIONS: list[dict[str, Any]] = [
     {
-        "id": "delete_predicted_gesture",
-        "title": "Delete Predicted Gesture",
-        "description": "Deletes rows from Predicted_Gesture_Handmark2 by definition id.",
+        "id": "delete_analyzed_frame",
+        "title": "Delete Analyzed Frame",
+        "description": "Deletes rows from Contained_Analyzed_Frame1 by recording and frame id.",
         "inputs": [
-            {"name": "def_id", "label": "Definition ID", "type": "number", "required": True, "placeholder": "101"},
+            {"name": "recording_id", "label": "Recording ID", "type": "number", "required": True, "placeholder": "101"},
+            {"name": "frame_id",     "label": "Frame ID",     "type": "number", "required": True, "placeholder": "1"},
         ],
     },
     {
@@ -234,8 +235,12 @@ def _format_query_result(query_id: str, result: Any, params: dict[str, Any]) -> 
 
 def run_docs_query(query_id: str, params: dict[str, Any]) -> dict[str, Any]:
     with get_connection() as conn:
-        if query_id == "delete_predicted_gesture":
-            result = delete_predicted_gesture(conn, _parse_number_param(params, "def_id"))
+        if query_id == "delete_analyzed_frame":
+            result = delete_analyzed_frame(
+                conn,
+                _parse_number_param(params, "recording_id"),
+                _parse_number_param(params, "frame_id"),
+            )
         elif query_id == "view_user_attributes":
             result = view_user_attributes(
                 conn,

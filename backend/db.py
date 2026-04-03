@@ -114,10 +114,10 @@ def update_user_profile(connection, user_id, new_name=None, new_email=None):
     bind_vars = {"input_user_id": user_id}
 
     if new_name:
-        updates.append("name = :input_name") # Hardcoded structure
+        updates.append("name = :input_name")
         bind_vars["input_name"] = new_name
     if new_email:
-        updates.append("email = :input_email") # Hardcoded structure
+        updates.append("email = :input_email")
         bind_vars["input_email"] = new_email
 
     if not updates:
@@ -157,7 +157,6 @@ def get_transcript_counts_per_user(connection):
 
 def insert_calibrated_definition(connection, def_id, user_id, gesture, def_name, description):
     cursor = connection.cursor()
-    # Structure is hardcoded. Safe.
     query = """
         INSERT INTO Calibrated_Definition (def_id, user_id, gesture, def_name, description)
         VALUES (:input_def_id, :input_user_id, :input_gesture, :input_def_name, :input_description)
