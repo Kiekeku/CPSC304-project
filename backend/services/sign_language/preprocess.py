@@ -114,12 +114,20 @@ def annotate_frame(frame, hand_landmarks_groups) -> cv2.typing.MatLike:
 
 
 def prepare_frame(frame, detector) -> dict:
-    resized = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_AREA)
-    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=resized)
+    h, w = frame.shape[:2]
+    max_dim = 640
+    if max(h, w) > max_dim:
+        scale = max_dim / max(h, w)
+        new_w, new_h = int(w * scale), int(h * scale)
+        processed_frame = cv2.resize(frame, (new_w, new_h), interpolation=cv2.INTER_AREA)
+    else:
+        processed_frame = frame.copy()
+
+    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=processed_frame)
     detection_result = detector.detect(mp_image)
     hand_landmarks_groups = detection_result.hand_landmarks
 
-    frame_height, frame_width = resized.shape[:2]
+    frame_height, frame_width = processed_frame.shape[:2]
     hands = [
         {
             "hand_index": hand_index,
@@ -129,8 +137,8 @@ def prepare_frame(frame, detector) -> dict:
     ]
 
     return {
-        "frame": resized,
-        "annotated_frame": annotate_frame(resized, hand_landmarks_groups),
+        "frame": processed_frame,
+        "annotated_frame": annotate_frame(processed_frame, hand_landmarks_groups),
         "hands": hands,
         "hand_count": len(hands),
         "landmarks_detected": sum(len(hand["landmarks"]) for hand in hands),
@@ -149,4 +157,3 @@ def prepare_frames(frames: list) -> list:
         print(f"New frame shape: {processed[0]['frame'].shape}")
 
     return processed
-
