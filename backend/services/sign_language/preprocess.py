@@ -58,12 +58,25 @@ LANDMARK_NAMES = [
     "pinky_tip",
 ]
 
+_detector: mp_vision.HandLandmarker | None = None
 
 def _ensure_model() -> None:
     if not os.path.exists(MODEL_PATH):
         print("Downloading hand landmarker model...")
         urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
 
+def _get_detector() -> mp_vision.HandLandmarker:
+    global _detector
+    if _detector is None:
+        _ensure_model()
+        options = mp_vision.HandLandmarkerOptions(
+            base_options=mp_python.BaseOptions(model_asset_path=MODEL_PATH),
+            num_hands=2,
+            min_hand_detection_confidence=0.5,
+            running_mode=mp_vision.RunningMode.IMAGE,
+        )
+        _detector = mp_vision.HandLandmarker.create_from_options(options)
+    return _detector
 
 def _serialize_hand_landmarks(hand_landmarks, frame_width: int, frame_height: int) -> list[dict]:
     serialized = []
@@ -124,22 +137,11 @@ def prepare_frame(frame, detector) -> dict:
 
 
 def prepare_frames(frames: list) -> list:
-    _ensure_model()
+    detector = _get_detector() 
     processed = []
 
-    options = mp_vision.HandLandmarkerOptions(
-        base_options=mp_python.BaseOptions(
-            model_asset_path=MODEL_PATH,
-            delegate=mp_python.BaseOptions.Delegate.CPU,
-        ),
-        num_hands=2,
-        min_hand_detection_confidence=0.5,
-        running_mode=mp_vision.RunningMode.IMAGE,
-    )
-
-    with mp_vision.HandLandmarker.create_from_options(options) as detector:
-        for frame in frames:
-            processed.append(prepare_frame(frame, detector))
+    for frame in frames:
+        processed.append(prepare_frame(frame, detector))
 
     if processed:
         print(f"Preprocessed {len(processed)} frames")
