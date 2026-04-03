@@ -57,10 +57,12 @@ def get_connection():
         _POOL.release(conn)
 
 
-def delete_predicted_gesture(connection, def_id):
+def delete_analyzed_frame(connection, recording_id, frame_id):
     cursor = connection.cursor()
-    query = "DELETE FROM Predicted_Gesture_Handmark2 WHERE def_id = :input_def_id"
-    bind_vars = {"input_def_id": def_id}
+    query = """DELETE FROM Contained_Analyzed_Frame1
+               WHERE recording_id = :input_recording_id
+               AND frame_id = :input_frame_id"""
+    bind_vars = {"input_recording_id": recording_id, "input_frame_id": frame_id}
     cursor.execute(query, bind_vars)
     connection.commit()
     return f"Deleted {cursor.rowcount} row(s)."
