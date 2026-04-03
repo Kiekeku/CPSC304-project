@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { login, register } from './api/authApi';
+import { login } from './api/authApi';
 import {
   addGestureLabel,
   createDataset,
@@ -68,8 +68,6 @@ function buildHistorySubtitle(item) {
 }
 
 export default function App() {
-  const [authMode, setAuthMode] = useState('login');
-  const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
@@ -309,10 +307,7 @@ export default function App() {
     setAuthMessage('');
     setAuthError('');
 
-    const result =
-      authMode === 'login'
-        ? await login(authEmail, authPassword)
-        : await register(authEmail, authName, authPassword);
+    const result = await login(authEmail, authPassword);
 
     setAuthLoading(false);
 
@@ -321,10 +316,10 @@ export default function App() {
       return;
     }
 
-    setAuthMessage(authMode === 'login' ? 'Login successful.' : 'Account created successfully.');
+    setAuthMessage('Login successful.');
 
     setCurrentUser({
-      name: authName || authEmail.split('@')[0],
+      name: authEmail.split('@')[0],
       email: authEmail,
     });
   }
@@ -477,34 +472,10 @@ export default function App() {
   if (!currentUser) {
     return (
       <main className="auth-shell">
-        <section className="auth-hero">
-          <p className="kicker">Sign Language Studio</p>
-          <h1>Train a custom gesture model, translate videos, and revisit every transcript.</h1>
-          <p className="hero-copy">
-            The app now centers the real workflow: authenticate, prepare a model, analyze a video,
-            and browse saved uploads without digging through raw API output.
-          </p>
-          <div className="hero-pills">
-            <span>Model creation</span>
-            <span>Video translation</span>
-            <span>Transcript history</span>
-          </div>
-        </section>
-
         <section className="auth-panel">
-          <p className="panel-eyebrow">{authMode === 'login' ? 'Welcome back' : 'Create account'}</p>
-          <h2>{authMode === 'login' ? 'Sign in to your workspace' : 'Set up your workspace'}</h2>
+          <p className="panel-eyebrow">Welcome back</p>
+          <h2>Sign in</h2>
           <form className="auth-form" onSubmit={handleAuthSubmit}>
-            {authMode === 'register' ? (
-              <label>
-                Name
-                <input
-                  value={authName}
-                  onChange={(event) => setAuthName(event.target.value)}
-                  placeholder="Ava Chen"
-                />
-              </label>
-            ) : null}
             <label>
               Email
               <input
@@ -526,26 +497,9 @@ export default function App() {
             {authMessage ? <div className="message-banner message-success">{authMessage}</div> : null}
             {authError ? <div className="message-banner message-error">{authError}</div> : null}
             <button type="submit" className="primary-button" disabled={authLoading}>
-              {authLoading
-                ? authMode === 'login'
-                  ? 'Signing in...'
-                  : 'Creating account...'
-                : authMode === 'login'
-                  ? 'Log in'
-                  : 'Register'}
+              {authLoading ? 'Signing in...' : 'Log in'}
             </button>
           </form>
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => {
-              setAuthMessage('');
-              setAuthError('');
-              setAuthMode((current) => (current === 'login' ? 'register' : 'login'));
-            }}
-          >
-            {authMode === 'login' ? 'Need an account? Register instead.' : 'Already registered? Log in.'}
-          </button>
         </section>
       </main>
     );
@@ -554,14 +508,6 @@ export default function App() {
   return (
     <main className="app-shell">
       <section className="app-hero">
-        <div>
-          <p className="kicker">Repository UI Refresh</p>
-          <h1>One clean flow from model setup to translated video review.</h1>
-          <p className="hero-copy">
-            Build or reopen a gesture model, add new examples when needed, analyze a video with the
-            selected model, and review past transcripts in one place.
-          </p>
-        </div>
         <div className="hero-actions">
           <div className="user-chip">
             <span className="user-chip-label">Signed in as</span>

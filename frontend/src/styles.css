@@ -1,16 +1,15 @@
 :root {
   color-scheme: light;
   font-family: "Avenir Next", "Segoe UI", sans-serif;
-  --bg: #f3efe5;
-  --panel: rgba(255, 250, 242, 0.86);
+  --bg: #f4f1ea;
+  --panel: #fffaf3;
   --panel-strong: #fffaf3;
-  --line: rgba(87, 63, 28, 0.14);
+  --line: #d8cfc1;
   --text: #20170f;
   --muted: #6a5847;
   --accent: #ca5b2e;
   --accent-dark: #9f441f;
   --accent-soft: #f2d8c5;
-  --shadow: 0 24px 70px rgba(72, 45, 16, 0.12);
 }
 
 * {
@@ -21,10 +20,7 @@ body {
   margin: 0;
   min-width: 320px;
   color: var(--text);
-  background:
-    radial-gradient(circle at top left, rgba(254, 215, 170, 0.85), transparent 28%),
-    radial-gradient(circle at top right, rgba(245, 158, 11, 0.18), transparent 24%),
-    linear-gradient(180deg, #f7f2ea 0%, #efe5d4 100%);
+  background: var(--bg);
 }
 
 button,
@@ -50,9 +46,8 @@ select {
   padding: 0.95rem 1rem;
   border-radius: 16px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.92);
+  background: #fff;
   color: var(--text);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 input:focus,
@@ -69,10 +64,9 @@ select:focus {
 
 .auth-shell {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-  gap: 28px;
+  display: flex;
   align-items: center;
+  justify-content: center;
   padding: 40px 0;
 }
 
@@ -81,31 +75,15 @@ select:focus {
 .app-hero,
 .panel,
 .summary-card {
-  position: relative;
-  overflow: hidden;
   border: 1px solid rgba(90, 65, 29, 0.1);
-  box-shadow: var(--shadow);
 }
 
 .auth-hero,
 .app-hero {
   padding: 36px;
   border-radius: 32px;
-  background:
-    linear-gradient(140deg, rgba(53, 34, 17, 0.96), rgba(113, 60, 28, 0.88)),
-    linear-gradient(180deg, #3a2412, #8d431e);
+  background: #7b4324;
   color: #fff8ef;
-}
-
-.auth-hero::after,
-.app-hero::after {
-  content: "";
-  position: absolute;
-  inset: auto -10% -35% auto;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 62%);
 }
 
 .kicker,
@@ -145,7 +123,7 @@ select:focus {
 .panel-tag {
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
   padding: 0.55rem 0.9rem;
   font-size: 0.88rem;
 }
@@ -154,12 +132,12 @@ select:focus {
 .panel,
 .summary-card {
   background: var(--panel);
-  backdrop-filter: blur(10px);
 }
 
 .auth-panel {
   padding: 32px;
   border-radius: 28px;
+  width: min(420px, 100%);
 }
 
 .auth-panel h2,
@@ -182,7 +160,7 @@ select:focus {
 .secondary-button,
 .text-button,
 .history-item {
-  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  transition: background-color 180ms ease, border-color 180ms ease;
 }
 
 .primary-button,
@@ -195,18 +173,20 @@ select:focus {
 .primary-button {
   background: var(--accent);
   color: white;
-  box-shadow: 0 18px 30px rgba(202, 91, 46, 0.28);
-}
-
-.primary-button:hover,
-.secondary-button:hover,
-.history-item:hover {
-  transform: translateY(-1px);
 }
 
 .secondary-button {
-  background: rgba(32, 23, 15, 0.08);
+  background: #f1e7dc;
   color: var(--text);
+}
+
+.primary-button:hover {
+  background: var(--accent-dark);
+}
+
+.secondary-button:hover,
+.history-item:hover {
+  background-color: #f5ede4;
 }
 
 .text-button {
@@ -258,8 +238,8 @@ select:focus {
 .user-chip {
   padding: 16px 18px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .summary-strip {
@@ -359,8 +339,7 @@ select:focus {
 }
 
 .transcript-card {
-  background:
-    linear-gradient(180deg, rgba(255, 236, 221, 0.92), rgba(255, 248, 240, 0.95));
+  background: #fff3e8;
 }
 
 .transcript-text,
@@ -390,8 +369,7 @@ select:focus {
   border-radius: 18px;
   color: var(--muted);
   text-align: center;
-  background:
-    linear-gradient(145deg, rgba(247, 228, 211, 0.9), rgba(255, 250, 245, 0.96));
+  background: #f4ebe1;
 }
 
 .upload-meta {
@@ -400,7 +378,7 @@ select:focus {
   gap: 12px;
   padding: 0.95rem 1rem;
   border-radius: 16px;
-  background: rgba(32, 23, 15, 0.05);
+  background: #f3ece4;
 }
 
 .tag-list {
@@ -428,7 +406,7 @@ select:focus {
   text-align: left;
   padding: 16px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.72);
+  background: #fff;
   border: 1px solid var(--line);
 }
 
@@ -444,7 +422,6 @@ select:focus {
 }
 
 @media (max-width: 1080px) {
-  .auth-shell,
   .workspace-grid,
   .summary-strip,
   .history-layout {
