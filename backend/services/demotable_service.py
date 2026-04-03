@@ -1,10 +1,23 @@
 import logging
+import json
 import re
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
-from db import get_connection
+from db import (
+    delete_predicted_gesture,
+    get_connection,
+    get_highly_active_users,
+    get_transcript_counts_per_user,
+    get_translated_words_for_transcript,
+    get_user_with_highest_avg_fps,
+    get_users_with_all_languages,
+    insert_calibrated_definition,
+    search_recordings,
+    update_user_profile,
+    view_user_attributes,
+)
 from services.sql_service import SQL_DIR, _normalize_statement, _split_sql_script, execute_sql_file
 
 logger = logging.getLogger(__name__)
@@ -18,6 +31,111 @@ DEFAULT_QUERY_BINDS = {
     "input_description": "Docs preview row",
 }
 
+DOCS_QUERY_DEFINITIONS: list[dict[str, Any]] = [
+    {
+        "id": "delete_predicted_gesture",
+        "title": "Delete Predicted Gesture",
+        "description": "Deletes rows from Predicted_Gesture_Handmark2 by definition id.",
+        "inputs": [
+            {"name": "def_id", "label": "Definition ID", "type": "number", "required": True, "placeholder": "101"},
+        ],
+    },
+    {
+        "id": "view_user_attributes",
+        "title": "View User Attributes",
+        "description": "Returns selected columns for a single Calibrated_User row.",
+        "inputs": [
+            {"name": "user_id", "label": "User ID", "type": "number", "required": True, "placeholder": "1"},
+            {
+                "name": "selected_columns",
+                "label": "Columns",
+                "type": "csv",
+                "required": True,
+                "placeholder": "name, email",
+                "helpText": "Allowed values: user_id, name, email, created_at",
+            },
+        ],
+        "resultColumns": ["selected columns"],
+    },
+    {
+        "id": "get_highly_active_users",
+        "title": "Get Highly Active Users",
+        "description": "Lists users with more than the supplied number of recordings.",
+        "inputs": [
+            {"name": "min_recordings", "label": "Minimum Recordings", "type": "number", "required": True, "placeholder": "3"},
+        ],
+        "resultColumns": ["USER_ID", "TOTAL_RECORDINGS"],
+    },
+    {
+        "id": "update_user_profile",
+        "title": "Update User Profile",
+        "description": "Updates a user name, email, or both.",
+        "inputs": [
+            {"name": "user_id", "label": "User ID", "type": "number", "required": True, "placeholder": "1"},
+            {"name": "new_name", "label": "New Name", "type": "text", "required": False, "placeholder": "Ada Lovelace"},
+            {"name": "new_email", "label": "New Email", "type": "text", "required": False, "placeholder": "ada@example.com"},
+        ],
+    },
+    {
+        "id": "get_translated_words_for_transcript",
+        "title": "Get Translated Words For Transcript",
+        "description": "Returns translated words and confidence for one transcript.",
+        "inputs": [
+            {"name": "transcript_id", "label": "Transcript ID", "type": "number", "required": True, "placeholder": "1"},
+        ],
+        "resultColumns": ["INSTANCE_ID", "TRANSLATION", "TRANSLATION_CONFIDENCE", "TRANSCRIPT_ID"],
+    },
+    {
+        "id": "get_transcript_counts_per_user",
+        "title": "Get Transcript Counts Per User",
+        "description": "Counts transcripts grouped by user.",
+        "inputs": [],
+        "resultColumns": ["USER_ID", "TRANSCRIPT_COUNT"],
+    },
+    {
+        "id": "insert_calibrated_definition",
+        "title": "Insert Calibrated Definition",
+        "description": "Inserts a new Calibrated_Definition row.",
+        "inputs": [
+            {"name": "def_id", "label": "Definition ID", "type": "number", "required": True, "placeholder": "999"},
+            {"name": "user_id", "label": "User ID", "type": "number", "required": True, "placeholder": "1"},
+            {"name": "gesture", "label": "Gesture", "type": "text", "required": True, "placeholder": "hello"},
+            {"name": "def_name", "label": "Definition Name", "type": "text", "required": True, "placeholder": "Greeting"},
+            {"name": "description", "label": "Description", "type": "text", "required": True, "placeholder": "Example definition"},
+        ],
+    },
+    {
+        "id": "get_user_with_highest_avg_fps",
+        "title": "Get User With Highest Avg FPS",
+        "description": "Returns the user whose recordings have the highest average FPS.",
+        "inputs": [],
+        "resultColumns": ["USER_ID", "AVG_FPS"],
+    },
+    {
+        "id": "get_users_with_all_languages",
+        "title": "Get Users With All Languages",
+        "description": "Finds users who have transcripts in every language present in the dataset.",
+        "inputs": [],
+        "resultColumns": ["USER_ID", "NAME"],
+    },
+    {
+        "id": "search_recordings",
+        "title": "Search Recordings",
+        "description": "Runs a filtered recording search using the validated dynamic query builder.",
+        "inputs": [
+            {
+                "name": "filters",
+                "label": "Filters JSON",
+                "type": "json",
+                "required": True,
+                "placeholder": '[{"logic":"AND","col":"fps","op":">","val":30}]',
+                "helpText": "Provide a JSON array. Allowed cols: recording_id, recording_name, fps, recording_date, user_id",
+            },
+        ],
+        "resultColumns": ["RECORDING_ID", "RECORDING_NAME", "FPS", "RECORDING_DATE"],
+    },
+]
+
 
 def test_oracle_connection() -> bool:
     try:
@@ -26,6 +144,139 @@ def test_oracle_connection() -> bool:
     except Exception:
         logger.exception("Oracle connection test failed")
         return False
+
+
+def list_docs_queries() -> list[dict[str, Any]]:
+    return DOCS_QUERY_DEFINITIONS
+
+
+def _serialize_scalar(value: Any) -> Any:
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    return value
+
+
+def _serialize_rows(rows: Any) -> list[list[Any]]:
+    serialized_rows: list[list[Any]] = []
+    for row in rows or []:
+        if isinstance(row, (list, tuple)):
+            serialized_rows.append([_serialize_scalar(cell) for cell in row])
+        else:
+            serialized_rows.append([_serialize_scalar(row)])
+    return serialized_rows
+
+
+def _normalize_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _parse_required_text(params: dict[str, Any], name: str) -> str:
+    value = _normalize_text(params.get(name))
+    if value is None:
+        raise ValueError(f"Missing required input: {name}")
+    return value
+
+
+def _parse_number_param(params: dict[str, Any], name: str) -> int:
+    raw_value = params.get(name)
+    if raw_value is None or str(raw_value).strip() == "":
+        raise ValueError(f"Missing required input: {name}")
+    try:
+        return int(str(raw_value).strip())
+    except ValueError as exc:
+        raise ValueError(f"Input '{name}' must be an integer.") from exc
+
+
+def _parse_csv_param(params: dict[str, Any], name: str) -> list[str]:
+    raw_value = params.get(name)
+    if raw_value is None:
+        raise ValueError(f"Missing required input: {name}")
+    values = [part.strip() for part in str(raw_value).split(",") if part.strip()]
+    if not values:
+        raise ValueError(f"Input '{name}' must include at least one value.")
+    return values
+
+
+def _parse_json_param(params: dict[str, Any], name: str) -> Any:
+    raw_value = params.get(name)
+    if raw_value is None:
+        raise ValueError(f"Missing required input: {name}")
+    if isinstance(raw_value, (list, dict)):
+        return raw_value
+    try:
+        return json.loads(str(raw_value))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Input '{name}' must be valid JSON.") from exc
+
+
+def _format_query_result(query_id: str, result: Any, params: dict[str, Any]) -> dict[str, Any]:
+    definition = next((item for item in DOCS_QUERY_DEFINITIONS if item["id"] == query_id), None)
+    if isinstance(result, str):
+        return {"queryId": query_id, "type": "message", "message": result}
+
+    if isinstance(result, list):
+        columns = (definition or {}).get("resultColumns") or []
+        if query_id == "view_user_attributes":
+            columns = [column.upper() for column in _parse_csv_param(params, "selected_columns")]
+        return {
+            "queryId": query_id,
+            "type": "table",
+            "columns": columns,
+            "rows": _serialize_rows(result),
+            "rowCount": len(result),
+        }
+
+    return {"queryId": query_id, "type": "message", "message": str(_serialize_scalar(result))}
+
+
+def run_docs_query(query_id: str, params: dict[str, Any]) -> dict[str, Any]:
+    with get_connection() as conn:
+        if query_id == "delete_predicted_gesture":
+            result = delete_predicted_gesture(conn, _parse_number_param(params, "def_id"))
+        elif query_id == "view_user_attributes":
+            result = view_user_attributes(
+                conn,
+                _parse_number_param(params, "user_id"),
+                _parse_csv_param(params, "selected_columns"),
+            )
+        elif query_id == "get_highly_active_users":
+            result = get_highly_active_users(conn, _parse_number_param(params, "min_recordings"))
+        elif query_id == "update_user_profile":
+            result = update_user_profile(
+                conn,
+                _parse_number_param(params, "user_id"),
+                new_name=_normalize_text(params.get("new_name")),
+                new_email=_normalize_text(params.get("new_email")),
+            )
+        elif query_id == "get_translated_words_for_transcript":
+            result = get_translated_words_for_transcript(conn, _parse_number_param(params, "transcript_id"))
+        elif query_id == "get_transcript_counts_per_user":
+            result = get_transcript_counts_per_user(conn)
+        elif query_id == "insert_calibrated_definition":
+            result = insert_calibrated_definition(
+                conn,
+                _parse_number_param(params, "def_id"),
+                _parse_number_param(params, "user_id"),
+                _parse_required_text(params, "gesture"),
+                _parse_required_text(params, "def_name"),
+                _parse_required_text(params, "description"),
+            )
+        elif query_id == "get_user_with_highest_avg_fps":
+            result = get_user_with_highest_avg_fps(conn)
+        elif query_id == "get_users_with_all_languages":
+            result = get_users_with_all_languages(conn)
+        elif query_id == "search_recordings":
+            filters = _parse_json_param(params, "filters")
+            if not isinstance(filters, list):
+                raise ValueError("Input 'filters' must be a JSON array.")
+            result = search_recordings(conn, filters)
+        else:
+            raise ValueError(f"Unknown query id: {query_id}")
+
+    return _format_query_result(query_id, result, params)
 
 
 def _normalize_identifier(identifier: str) -> str:

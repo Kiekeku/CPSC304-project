@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Response, status
 
-from models.schemas import TableDeleteRequest, TableInsertRequest, TableUpdateRequest
+from models.schemas import DocsQueryRunRequest, TableDeleteRequest, TableInsertRequest, TableUpdateRequest
 from services.demotable_service import (
     delete_table_row,
     fetch_table_rows,
     get_table_metadata,
     initiate_demotable,
     insert_table_row,
+    list_docs_queries,
     list_tables,
+    run_docs_query,
     run_demotable_queries_preview,
     test_oracle_connection,
     update_table_row,
@@ -45,6 +47,23 @@ def post_run_demotable_queries(response: Response) -> dict:
     except Exception as exc:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"success": False, "message": str(exc), "results": []}
+
+
+@router.get("/docs-queries")
+def get_docs_queries() -> dict:
+    return {"success": True, "queries": list_docs_queries()}
+
+
+@router.post("/docs-run-query")
+def post_docs_run_query(payload: DocsQueryRunRequest, response: Response) -> dict:
+    try:
+        return {"success": True, "result": run_docs_query(payload.queryId, payload.params)}
+    except ValueError as exc:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {"success": False, "message": str(exc)}
+    except Exception as exc:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"success": False, "message": str(exc)}
 
 
 @router.get("/table-metadata/{table_name}")

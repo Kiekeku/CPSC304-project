@@ -34,6 +34,11 @@ class TableDeleteRequest(BaseModel):
     keys: dict[str, Any] = Field(default_factory=dict)
 
 
+class DocsQueryRunRequest(BaseModel):
+    queryId: str
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
 class CreateDatasetRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=80)
 

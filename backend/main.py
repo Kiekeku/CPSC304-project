@@ -49,16 +49,59 @@ def custom_docs() -> HTMLResponse:
     html = swagger.body.decode("utf-8")
     injected = """
 <style>
-#demotable-query-preview {
+#docs-query-runner {
   margin: 16px;
   padding: 16px;
   border: 1px solid #d8dee9;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #f8fafc;
   font-family: sans-serif;
 }
-#demotable-query-preview button {
-  margin-top: 8px;
+#docs-query-grid {
+  margin-top: 16px;
+  display: grid;
+  gap: 16px;
+}
+.docs-query-card {
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+}
+.docs-query-card h3 {
+  margin: 0 0 6px;
+}
+.docs-query-card p {
+  margin: 0 0 12px;
+}
+.docs-query-form {
+  display: grid;
+  gap: 10px;
+}
+.docs-query-field {
+  display: grid;
+  gap: 4px;
+}
+.docs-query-field label {
+  font-weight: 600;
+  font-size: 14px;
+}
+.docs-query-field input,
+.docs-query-field textarea {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+.docs-query-field textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+.docs-query-help {
+  font-size: 12px;
+  color: #475569;
+}
+.docs-query-card button {
   padding: 8px 12px;
   border: 0;
   border-radius: 6px;
@@ -66,22 +109,14 @@ def custom_docs() -> HTMLResponse:
   color: #fff;
   cursor: pointer;
 }
-#demotable-query-preview button:disabled {
+.docs-query-card button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
-#demotable-query-output {
-  margin-top: 16px;
-  display: grid;
-  gap: 12px;
+.docs-query-result {
+  margin-top: 12px;
 }
-.demotable-query-card {
-  padding: 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #fff;
-}
-.demotable-query-card pre {
+.docs-query-result pre {
   overflow-x: auto;
   white-space: pre-wrap;
   background: #0f172a;
@@ -89,36 +124,33 @@ def custom_docs() -> HTMLResponse:
   padding: 10px;
   border-radius: 6px;
 }
-.demotable-query-card table {
+.docs-query-result table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 8px;
 }
-.demotable-query-card th,
-.demotable-query-card td {
+.docs-query-result th,
+.docs-query-result td {
   border: 1px solid #cbd5e1;
   padding: 6px 8px;
   text-align: left;
   vertical-align: top;
 }
-.demotable-status-error { color: #b91c1c; }
-.demotable-status-success { color: #166534; }
-.demotable-status-skipped { color: #92400e; }
+.docs-query-status-error { color: #b91c1c; }
+.docs-query-status-success { color: #166534; }
 </style>
 <script>
 window.addEventListener('load', function () {
   const container = document.createElement('section');
-  container.id = 'demotable-query-preview';
+  container.id = 'docs-query-runner';
   container.innerHTML = `
-    <h2>Demotable Query Preview</h2>
-    <p>Runs the statements from <code>backend/sql/demotable_queries.sql</code> with preview bind values and rolls back any changes after execution.</p>
-    <button id="run-demotable-queries-button" type="button">Run demotable queries</button>
-    <div id="demotable-query-output"></div>
+    <h2>DB Query Runner</h2>
+    <p>Run the 10 query helpers defined in <code>backend/db.py</code>. Write operations execute against the database immediately.</p>
+    <div id="docs-query-grid"><div>Loading queries...</div></div>
   `;
   document.body.prepend(container);
 
-  const button = document.getElementById('run-demotable-queries-button');
-  const output = document.getElementById('demotable-query-output');
+  const grid = document.getElementById('docs-query-grid');
 
   function escapeHtml(value) {
     return String(value)
@@ -127,56 +159,131 @@ window.addEventListener('load', function () {
       .replaceAll('>', '&gt;');
   }
 
-  function formatResult(result) {
-    const statusClass = `demotable-status-${result.status}`;
-    const binds = result.binds && Object.keys(result.binds).length
-      ? `<div><strong>Binds:</strong> <code>${escapeHtml(JSON.stringify(result.binds))}</code></div>`
-      : '';
+  function escapeAttribute(value) {
+    return escapeHtml(value).replaceAll('"', '&quot;');
+  }
 
-    const dataTable = Array.isArray(result.columns) && result.columns.length
+  function buildInputField(input) {
+    const help = input.helpText
+      ? `<div class="docs-query-help">${escapeHtml(input.helpText)}</div>`
+      : '';
+    const required = input.required ? 'required' : '';
+    const placeholder = input.placeholder ? `placeholder="${escapeAttribute(input.placeholder)}"` : '';
+    const control = input.type === 'json'
       ? `
-        <table>
-          <thead>
-            <tr>${result.columns.map((column) => `<th>${escapeHtml(column)}</th>`).join('')}</tr>
-          </thead>
-          <tbody>
-            ${(result.rows || []).map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell ?? '')}</td>`).join('')}</tr>`).join('')}
-          </tbody>
-        </table>
+        <textarea name="${escapeAttribute(input.name)}" data-input-type="${escapeAttribute(input.type)}" ${placeholder} ${required}></textarea>
       `
-      : '';
-
-    const fallback = result.message
-      ? `<div>${escapeHtml(result.message)}</div>`
-      : `<div>Rows affected: ${escapeHtml(result.rowCount ?? 0)}</div>`;
+      : `
+        <input name="${escapeAttribute(input.name)}" data-input-type="${escapeAttribute(input.type)}" type="${input.type === 'number' ? 'number' : 'text'}" ${placeholder} ${required} />
+      `;
 
     return `
-      <article class="demotable-query-card">
-        <div><strong>Statement ${escapeHtml(result.index)}</strong> <span class="${statusClass}">(${escapeHtml(result.status)})</span></div>
-        <div><strong>Type:</strong> ${escapeHtml(result.type || 'UNKNOWN')}</div>
-        ${binds}
-        <pre>${escapeHtml(result.statement)}</pre>
-        ${dataTable || fallback}
+      <div class="docs-query-field">
+        <label>${escapeHtml(input.label)}</label>
+        ${control}
+        ${help}
+      </div>
+    `;
+  }
+
+  function renderResult(result) {
+    if (result.type === 'table') {
+      const columns = Array.isArray(result.columns) && result.columns.length
+        ? result.columns
+        : (result.rows[0] || []).map((_, index) => `Column ${index + 1}`);
+      const emptyColspan = Math.max(columns.length, 1);
+      return `
+        <div class="docs-query-status-success">Returned ${escapeHtml(result.rowCount ?? 0)} row(s).</div>
+        <table>
+          <thead>
+            <tr>${columns.map((column) => `<th>${escapeHtml(column)}</th>`).join('')}</tr>
+          </thead>
+          <tbody>
+            ${(result.rows || []).map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell ?? '')}</td>`).join('')}</tr>`).join('') || '<tr><td colspan="' + emptyColspan + '">No rows returned.</td></tr>'}
+          </tbody>
+        </table>
+      `;
+    }
+
+    return `<div class="docs-query-status-success">${escapeHtml(result.message || 'Query completed.')}</div>`;
+  }
+
+  function renderQueryCard(query) {
+    const inputs = query.inputs && query.inputs.length
+      ? query.inputs.map(buildInputField).join('')
+      : '<div class="docs-query-help">This query does not require any inputs.</div>';
+
+    return `
+      <article class="docs-query-card" data-query-id="${escapeHtml(query.id)}">
+        <h3>${escapeHtml(query.title)}</h3>
+        <p>${escapeHtml(query.description || '')}</p>
+        <form class="docs-query-form">
+          ${inputs}
+          <div>
+            <button type="submit">Run Query</button>
+          </div>
+        </form>
+        <div class="docs-query-result"></div>
       </article>
     `;
   }
 
-  button.addEventListener('click', async function () {
-    button.disabled = true;
-    output.innerHTML = '<div>Running queries...</div>';
+  function collectParams(form) {
+    const params = {};
+    for (const element of form.querySelectorAll('[name]')) {
+      params[element.name] = element.value;
+    }
+    return params;
+  }
+
+  async function loadQueries() {
     try {
-      const response = await fetch('/run-demotable-queries', { method: 'POST' });
+      const response = await fetch('/docs-queries');
       const payload = await response.json();
       if (!response.ok || !payload.success) {
-        throw new Error(payload.message || 'Failed to run demotable queries.');
+        throw new Error(payload.message || 'Failed to load query definitions.');
       }
-      output.innerHTML = payload.results.map(formatResult).join('');
+
+      grid.innerHTML = payload.queries.map(renderQueryCard).join('');
+
+      for (const card of grid.querySelectorAll('.docs-query-card')) {
+        const form = card.querySelector('.docs-query-form');
+        const button = form.querySelector('button');
+        const resultContainer = card.querySelector('.docs-query-result');
+        const queryId = card.dataset.queryId;
+
+        form.addEventListener('submit', async function (event) {
+          event.preventDefault();
+          button.disabled = true;
+          resultContainer.innerHTML = '<div>Running query...</div>';
+
+          try {
+            const response = await fetch('/docs-run-query', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                queryId,
+                params: collectParams(form),
+              }),
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload.success) {
+              throw new Error(payload.message || 'Query failed.');
+            }
+            resultContainer.innerHTML = renderResult(payload.result);
+          } catch (error) {
+            resultContainer.innerHTML = `<div class="docs-query-status-error">${escapeHtml(error.message || 'Query failed.')}</div>`;
+          } finally {
+            button.disabled = false;
+          }
+        });
+      }
     } catch (error) {
-      output.innerHTML = `<div class="demotable-status-error">${escapeHtml(error.message || 'Failed to run demotable queries.')}</div>`;
-    } finally {
-      button.disabled = false;
+      grid.innerHTML = `<div class="docs-query-status-error">${escapeHtml(error.message || 'Failed to load query definitions.')}</div>`;
     }
-  });
+  }
+
+  loadQueries();
 });
 </script>
 """
