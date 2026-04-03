@@ -220,7 +220,7 @@ UPDATE Documented_Saved_Transcript_7 SET transcript_id = 203 WHERE recording_id 
 UPDATE Documented_Saved_Transcript_7 SET transcript_id = 208 WHERE recording_id = 8;
 
 INSERT INTO Documented_Saved_Transcript_2 VALUES (203, 2);
-INSERT INTO Documented_Saved_Transcript_2 VALUES (208, 2);
+INSERT INTO Documented_Saved_Transcript_2 VALUES (208, 1);
 
 INSERT INTO Documented_Saved_Transcript_3 VALUES (203, 'HELP PLEASE SORRY');
 INSERT INTO Documented_Saved_Transcript_3 VALUES (208, 'HELLO HELP PLEASE');
@@ -250,7 +250,7 @@ INSERT INTO Documented_Saved_Transcript_12 VALUES (3, 'English');
 INSERT INTO Documented_Saved_Transcript_12 VALUES (8, 'English');
 
 INSERT INTO Created_Documented_Recording VALUES (3, 203, 2, 24, DATE '2025-12-01', 'bob_session_1');
-INSERT INTO Created_Documented_Recording VALUES (8, 208, 2, 60, DATE '2026-01-10', 'bob_session_2');
+INSERT INTO Created_Documented_Recording VALUES (8, 208, 1, 60, DATE '2026-01-10', 'jett_session_3');
 
 INSERT INTO Live  VALUES (3, 'webcam://device_0');
 INSERT INTO Video VALUES (8, 90);
