@@ -56,7 +56,7 @@ def get_connection():
     finally:
         _POOL.release(conn)
 
-
+# DELETE QUERY
 def delete_analyzed_frame(connection, recording_id, frame_id):
     cursor = connection.cursor()
     query = """DELETE FROM Contained_Analyzed_Frame1
@@ -67,7 +67,7 @@ def delete_analyzed_frame(connection, recording_id, frame_id):
     connection.commit()
     return f"Deleted {cursor.rowcount} row(s)."
 
-
+# PROJECTION QUERY
 def view_user_attributes(connection, user_id, selected_columns):
     """
     selected_columns example: ["name", "email"]
@@ -94,7 +94,7 @@ def view_user_attributes(connection, user_id, selected_columns):
     cursor.execute(query, bind_vars)
     return cursor.fetchall()
 
-
+# AGGREGATION WITH HAVING
 def get_highly_active_users(connection, min_recordings):
     cursor = connection.cursor()
     query = """
@@ -107,6 +107,7 @@ def get_highly_active_users(connection, min_recordings):
     cursor.execute(query, bind_vars)
     return cursor.fetchall()
 
+# UPDATE
 def update_user_profile(connection, user_id, new_name=None, new_email=None):
     cursor = connection.cursor()
     query = "UPDATE Calibrated_User SET "
@@ -130,6 +131,7 @@ def update_user_profile(connection, user_id, new_name=None, new_email=None):
     connection.commit()
     return f"Updated {cursor.rowcount} row(s)."
 
+# JOIN
 def get_translated_words_for_transcript(connection, transcript_id):
     cursor = connection.cursor()
     query = """
@@ -143,7 +145,7 @@ def get_translated_words_for_transcript(connection, transcript_id):
     cursor.execute(query, bind_vars)
     return cursor.fetchall()
 
-
+# AGGREGATION GROUP BY
 def get_transcript_counts_per_user(connection):
     cursor = connection.cursor()
     query = """
@@ -154,7 +156,7 @@ def get_transcript_counts_per_user(connection):
     cursor.execute(query)
     return cursor.fetchall()
 
-
+# INSERT
 def insert_calibrated_definition(connection, def_id, user_id, gesture, def_name, description):
     cursor = connection.cursor()
     query = """
@@ -176,7 +178,7 @@ def insert_calibrated_definition(connection, def_id, user_id, gesture, def_name,
         error, = e.args
         return f"Insert failed. Database error: {error.code}"
 
-
+# NESTED AGGREGATION
 def get_user_with_highest_avg_fps(connection):
     cursor = connection.cursor()
     query = """
@@ -192,7 +194,7 @@ def get_user_with_highest_avg_fps(connection):
     cursor.execute(query)
     return cursor.fetchall()
 
-
+# DIVISION
 def get_users_with_all_languages(connection):
     cursor = connection.cursor()
     query = """
@@ -214,7 +216,7 @@ def get_users_with_all_languages(connection):
     cursor.execute(query)
     return cursor.fetchall()
 
-
+# SELECTION
 def search_recordings(connection, filters):
     """
     filters example: [{"logic": "AND", "col": "fps", "op": ">", "val": 30}]
