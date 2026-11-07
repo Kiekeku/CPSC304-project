@@ -1,59 +1,28 @@
-# Project Setup
+# CPSC 304 Gesture Recognition
 
-Please refer to the [sample project setup instructions here](https://www.students.cs.ubc.ca/~cs-304/resources/javascript-oracle-resources/node-setup.html#remote-deploy-item) for more in-depth instructions.
+Our UBC database course team built a web app for recognizing hand gestures from video and webcam frames. Users can create a gesture dataset, upload labeled examples, train a model, and review saved video analyses and transcripts. The model recognizes the labels it was trained on.
 
-## Prerequisites
+The app uses a [React frontend](frontend/src), a [FastAPI backend](backend), and an [Oracle database schema](backend/sql/demotable_schema.sql). The backend extracts hand landmarks with MediaPipe and uses them to train and run gesture models.
 
-- Access to UBC CS undergrad server
+![Gesture workspace showing a sample model, training sample counts, and video analysis controls](docs/gesture-workspace.png)
 
-## Setup Instructions (Remote)
+*The screenshot shows the app with synthetic data.*
 
-### 1. Create Environment File
+## My contributions
 
-Create a `.env` file in the root directory of the project with the following contents:
+I’m Justin Hoang (@Kiekeku). I worked on the gesture interface and helped connect it to the backend and database.
 
-```
-# TODO: Edit the values below this line according to the given placeholders
-# Replace 'ora_YOUR-CWL-USERNAME' with "ora_" (no quotation marks) followed by your CWL username.
-ORACLE_USER=ora_YOUR-CWL-USERNAME
-# Replace 'YOUR-STUDENT-NUMBER' with your actual student number.
-ORACLE_PASS=aYOUR-STUDENT-NUMBER
+- I built the initial [gesture model studio](frontend/src/features/GestureModelStudio.jsx) for managing models, gesture labels, and training videos. I also added [webcam recognition controls](frontend/src/App.jsx) to the main workspace.
+- I pair-programmed on our [OpenCV video-processing pipeline](backend/services/sign_language), which samples video frames and prepares them for hand-landmark extraction.
+- I consolidated our [Oracle SQL examples](backend/sql/combined_sql.sql) and added [editable query endpoints](backend/routers/demotable_router.py) for exploring the project’s data.
+- I restored the registration form and fixed how [frontend API requests](frontend/src/api/http.js) carry the signed-in user ID.
 
+## Setup
 
-#Adjust the PORT if needed (e.g., if you encounter a "port already occupied" error)
-PORT=65535
+Running the full app requires access to the UBC course Oracle database. The FastAPI service serves the checked-in React build from `frontend/dist`.
 
-# -------------- The three lines below should be left unaltered --------------
-ORACLE_HOST=dbhost.students.cs.ubc.ca
-ORACLE_PORT=1522
-ORACLE_DBNAME=stu
+1. Copy [`backend/.env.example`](backend/.env.example) to `.env` in the repository root. Set your Oracle connection details and choose an available application port. Keep your local `.env` out of Git.
+2. If you’re developing off campus, use the [Bash](scripts/mac/db-tunnel.sh) or [Windows](scripts/win/db-tunnel.cmd) tunnel script. The script updates the Oracle host and port in `.env` to match the local tunnel.
+3. On a Bash host with Python and its `venv` module, run [`bash scripts/deploy.sh`](scripts/deploy.sh) from the repository root. It installs the [backend dependencies](backend/requirements.txt) into a virtual environment and starts FastAPI. Open the server’s hostname and the port configured in `.env`.
 
-```
-test
-
-### 2. Configure Team Number
-**Only perform this step if you want to run the project on the remote servers**
-
-Open the `remote-start.sh` script and set your team number:
-
-```bash
-TEAM_NUMBER=... # Replace ... with your actual team number here
-```
-
-# Project Info
-
-This project runs as one service:
-- FastAPI backend (`backend/`)
-- React frontend build served by FastAPI (`frontend/dist`)
-
-Update `.env` values:
-- `ORACLE_USER`
-- `ORACLE_PASS`
-- `PORT` (for web app)
-- `ORACLE_HOST`, `ORACLE_PORT`, `ORACLE_DBNAME`
-
-To run the application, no libraries needed. Run ./scripts/deploy.sh to deploy site and go to localhost:port_number.
-
-To updated the ui, npm needs to be installed. Once installed, running ./scripts/build-frontend.sh will update the files in frontend/dist. This will update the ui for everyone.
-
-If using a machine not on the student servers, use bash scripts/mac/db-tunnel.sh to connect to the oracle database. Or use bash scripts/win/db-tunnel.cmd.
+To rebuild the frontend after changing its source, install Node.js and npm and run [`bash scripts/build-frontend.sh`](scripts/build-frontend.sh).
