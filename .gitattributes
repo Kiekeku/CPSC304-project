@@ -1,0 +1,2 @@
+# Exclude superseded components from GitHub's language statistics.
+frontend/src/features/** -linguist-detectable
